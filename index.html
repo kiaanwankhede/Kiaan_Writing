@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Picture Pen</title>
-  <meta name="description" content="Research, design and app plan for Picture Pen: a calm, reward-based writing app for a young autistic learner. Write a letter, see one picture and its spelling.">
+  <meta name="description" content="Research, design and app plan for Picture Pen: a calm, reward-based writing app for a young autistic learner on an Android tablet with a stylus. Write a number, see one picture and its spelling.">
   <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,19 +19,19 @@
 
 <!-- 1 · TITLE ============================================================ -->
 <section class="slide title-slide">
-  <div class="row" style="height:100%; align-items:center; gap:40px">
-    <div class="col" style="flex:0 0 520px">
+  <div class="row" style="height:100%; align-items:center; gap:36px">
+    <div class="col" style="flex:0 0 540px">
       <div class="brand"><img src="assets/icon.svg" alt=""> Picture Pen</div>
-      <h1>Write a letter.<br><span>See a picture.</span></h1>
-      <p class="lead" style="margin-top:22px; font-size:24px">A calm, reward-based writing app for a 4-year-old autistic learner who loves pictures.</p>
+      <h1 style="font-size:64px">Write a number.<br><span>See a picture.</span></h1>
+      <p class="lead" style="margin-top:22px; font-size:24px">A calm, reward-based writing app for a 4-year-old autistic learner who loves pictures. Built for an Android tablet and stylus.</p>
       <div class="badge-row" style="margin-top:26px">
-        <span class="pill">Research</span><span class="pill">Design principles</span><span class="pill">Mock screens</span><span class="pill">Android &amp; iPad app</span>
+        <span class="pill">Research</span><span class="pill">Design</span><span class="pill">Mock screens</span><span class="pill">Android app</span>
       </div>
       <p class="muted small" style="margin-top:30px">November 2026 · Use ← → keys, click or swipe</p>
     </div>
-    <div class="col" style="position:relative; height:520px">
-      <div class="device tablet" style="position:absolute; right:0; top:28px; width:590px"><img src="assets/screens/reward.png" alt="Reward screen: an apple with the word APPLE spelled in letter tiles"></div>
-      <div class="device phone" style="position:absolute; left:-10px; bottom:-4px; width:168px"><img src="assets/screens/phone-trace.png" alt="Tracing a line on a phone"></div>
+    <div class="col" style="position:relative; height:540px">
+      <div class="device tablet" style="position:absolute; right:0; top:10px; width:560px"><img src="assets/screens/reward.png" alt="Reward screen: an elephant with the word ELEPHANT spelled in letter tiles"></div>
+      <div class="device tablet" style="position:absolute; left:-40px; bottom:-6px; width:310px; padding:10px; border-radius:20px"><img src="assets/screens/trace-l1.png" alt="Tracing the number 4" style="border-radius:10px"></div>
     </div>
   </div>
 </section>
@@ -39,27 +39,29 @@
 <!-- 2 · BRIEF ============================================================ -->
 <section class="slide">
   <p class="kicker">The brief</p>
-  <h2>Teach writing the way he already likes to learn: with pictures</h2>
-  <div class="row" style="gap:32px; margin-top:8px">
+  <h2>Teach writing with what he loves: pictures</h2>
+  <div class="row" style="gap:28px; margin-top:4px">
     <div class="col">
-      <div class="grid-3" style="grid-template-columns:1fr; gap:14px">
-        <div class="card"><h3>Who it is for</h3><p>A 4-year-old autistic boy at the very start of writing. He loves images, so pictures are what motivate him.</p></div>
-        <div class="card"><h3>What was asked</h3><p>A reward-based app. Each time he succeeds, show him <b>one image with its spelling</b>.</p></div>
-        <div class="card"><h3>What success looks like</h3><p>He traces letters on his own, carries them over to pencil and paper, and asks to play.</p></div>
+      <div class="grid-2" style="gap:14px">
+        <div class="card"><h3>Who and where</h3><p>A 4-year-old autistic boy, starting to write. He loves images. He'll use a <b>Lenovo tablet with a stylus</b>.</p></div>
+        <div class="card"><h3>The reward</h3><p>On each success, exactly <b>one picture with its spelling</b>, drawn from <b>300</b> pictures suited to his age. No picture bank to choose from.</p></div>
+        <div class="card"><h3>What to write</h3><p><b>Numbers 1–9 first.</b> Capital letters A–Z are added later.</p></div>
+        <div class="card"><h3>Grows with him</h3><p>At first: big characters with lots of room for error. As he masters it, the room shrinks, characters get smaller, and more appear on each screen.</p></div>
       </div>
+      <div class="card" style="margin-top:14px"><h3>For the parent</h3><p><b>Stars for every character</b>, so you can see where he is doing well and where he needs practice.</p></div>
     </div>
-    <div class="col" style="flex:0 0 470px">
-      <div class="card" style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:18px; background:var(--paper)">
+    <div class="col" style="flex:0 0 400px">
+      <div class="card" style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:16px">
         <p class="kicker" style="margin:0">One turn, in one line</p>
         <div style="display:flex; align-items:center; gap:18px">
-          <span style="font:900 96px/1 var(--display); color:var(--ink)">A</span>
+          <span style="font:900 100px/1 var(--display); color:var(--ink)">3</span>
           <svg width="44" viewBox="0 0 48 24" style="color:var(--line-strong)"><path d="M2 12h38M30 3l10 9-10 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <img src="assets/img/apple.svg" alt="" style="width:104px">
+          <img src="assets/img/r/1f418.svg" alt="" style="width:104px">
         </div>
-        <div style="display:flex; gap:8px">
-          <span class="pill ink" style="font-size:26px; padding:8px 14px; color:var(--ink)">A</span><span class="pill" style="font-size:26px; padding:8px 14px; background:#fff; color:var(--text); box-shadow:inset 0 0 0 2px var(--line)">P</span><span class="pill" style="font-size:26px; padding:8px 14px; background:#fff; color:var(--text); box-shadow:inset 0 0 0 2px var(--line)">P</span><span class="pill" style="font-size:26px; padding:8px 14px; background:#fff; color:var(--text); box-shadow:inset 0 0 0 2px var(--line)">L</span><span class="pill" style="font-size:26px; padding:8px 14px; background:#fff; color:var(--text); box-shadow:inset 0 0 0 2px var(--line)">E</span>
+        <div style="display:flex; gap:6px">
+          <span class="pill" style="font-size:22px; padding:7px 11px; background:#fff; color:var(--text); box-shadow:inset 0 0 0 2px var(--line)">E</span><span class="pill" style="font-size:22px; padding:7px 11px; background:#fff; color:var(--text); box-shadow:inset 0 0 0 2px var(--line)">L</span><span class="pill ink" style="font-size:22px; padding:7px 11px; color:var(--ink)">E</span><span class="pill" style="font-size:22px; padding:7px 11px; background:#fff; color:var(--text); box-shadow:inset 0 0 0 2px var(--line)">P</span><span class="pill" style="font-size:22px; padding:7px 11px; background:#fff; color:var(--text); box-shadow:inset 0 0 0 2px var(--line)">H</span><span class="pill" style="font-size:22px; padding:7px 11px; background:#fff; color:var(--text); box-shadow:inset 0 0 0 2px var(--line)">A</span><span class="pill" style="font-size:22px; padding:7px 11px; background:#fff; color:var(--text); box-shadow:inset 0 0 0 2px var(--line)">N</span><span class="pill" style="font-size:22px; padding:7px 11px; background:#fff; color:var(--text); box-shadow:inset 0 0 0 2px var(--line)">T</span>
         </div>
-        <p class="quote" style="font-size:22px; max-width:360px">Trace the letter, then see and hear one picture and its spelling.</p>
+        <p class="quote" style="font-size:21px; max-width:330px">Trace the number, then see and hear one picture and its spelling.</p>
       </div>
     </div>
   </div>
@@ -106,7 +108,7 @@
         <td>Designed with educators: correct letter formation and fine-motor control, step by step</td>
         <td class="muted">Not a focus in reviews</td>
         <td class="borrow">Stroke order and direction first</td>
-        <td class="watch">A reviewer wanted control over how strictly the line must be followed → our "tracing room" setting</td>
+        <td class="watch">A reviewer wanted control over how strictly the line must be followed → our 7 mastery levels</td>
       </tr>
       <tr>
         <td class="app"><b>Wet-Dry-Try</b><span>Learning Without Tears</span></td>
@@ -180,18 +182,18 @@
     <div class="card"><div class="num">1</div><h3>One thing per screen</h3><p>One task, one big button, calm colours, nothing flashing.</p></div>
     <div class="card"><div class="num">2</div><h3>Same routine, every time</h3><p>"First write → Then picture" is shown before he starts.</p></div>
     <div class="card"><div class="num">3</div><h3>Nothing to get wrong</h3><p>Off the line, the ink just waits. No buzzers, crosses or lost stars.</p></div>
-    <div class="card"><div class="num">4</div><h3>One picture, right away</h3><p>Every success brings one picture with its spelling, within a second.</p></div>
-    <div class="card"><div class="num">5</div><h3>Made from his world</h3><p>Grown-ups can swap any picture for a photo: his train, his dog, Mum.</p></div>
-    <div class="card"><div class="num">6</div><h3>Help that fades</h3><p>Arrows + dots → dots only → faint guide. Wider or tighter tracing room.</p></div>
-    <div class="card"><div class="num">7</div><h3>Senses under control</h3><p>Voice, chimes and motion can each be turned down or off.</p></div>
-    <div class="card"><div class="num">8</div><h3>Safe by design</h3><p>Grown-up area needs a 2-second hold. No ads, no purchases, no internet, no data leaves the tablet.</p></div>
+    <div class="card"><div class="num">4</div><h3>One picture per success</h3><p>Exactly one, straight away, with its spelling. No gallery to pick from.</p></div>
+    <div class="card"><div class="num">5</div><h3>Always something new</h3><p>300 everyday pictures, shuffled. None repeats until all 300 have been seen.</p></div>
+    <div class="card"><div class="num">6</div><h3>Grows with him</h3><p>Big and forgiving at first. Tighter, smaller and more per screen as he masters it.</p></div>
+    <div class="card"><div class="num">7</div><h3>Made for a stylus</h3><p>Palm guard while the pen is used, hover ring, and the ink follows the pen tip.</p></div>
+    <div class="card"><div class="num">8</div><h3>Safe by design</h3><p>Full screen, back button ignored, grown-ups area needs a 2-second hold. No ads, no internet, no data leaves the tablet.</p></div>
   </div>
 </section>
 
 <!-- 8 · CORE LOOP ======================================================== -->
 <section class="slide">
   <p class="kicker">The core loop</p>
-  <h2>One turn takes about a minute, and it is the same every time</h2>
+  <h2>One turn takes about a minute, and the steps never change</h2>
   <div class="loop" style="margin-top:30px">
     <div class="step">
       <div class="bubble"><span style="display:flex; align-items:center; gap:4px"><img src="assets/img/pencil.svg" alt="" style="width:40px;height:40px"><span style="color:var(--line-strong); font-weight:900">›</span><img src="assets/img/picture.svg" alt="" style="width:40px;height:40px"></span></div>
@@ -200,224 +202,281 @@
     <div class="arrow"><svg viewBox="0 0 48 24"><path d="M2 12h38M30 3l10 9-10 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="step">
       <div class="bubble"><svg width="70" height="70" viewBox="0 0 70 70"><path d="M15 55 L55 15" stroke="#ECE5D8" stroke-width="14" stroke-linecap="round"/><path d="M15 55 L40 30" stroke="#F08C00" stroke-opacity=".3" stroke-width="9" stroke-linecap="round"/><circle cx="40" cy="30" r="7" fill="#F08C00"/></svg></div>
-      <h3>Show me</h3><p>A dot draws the stroke</p>
+      <h3>Show me</h3><p>A dot draws the stroke; the voice says "three"</p>
     </div>
     <div class="arrow"><svg viewBox="0 0 48 24"><path d="M2 12h38M30 3l10 9-10 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="step">
-      <div class="bubble"><span class="glyph">A</span></div>
-      <h3>Trace</h3><p>Finger follows the path; the ink never goes wrong</p>
+      <div class="bubble"><span class="glyph">3</span></div>
+      <h3>Trace</h3><p>1 to 4 characters, depending on his level</p>
     </div>
     <div class="arrow"><svg viewBox="0 0 48 24"><path d="M2 12h38M30 3l10 9-10 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="step">
-      <div class="bubble" style="background:var(--star-soft)"><img src="assets/img/apple.svg" alt=""></div>
-      <h3>One picture</h3><p>"A is for Apple", then spelled out</p>
+      <div class="bubble" style="background:var(--star-soft)"><img src="assets/img/r/1f418.svg" alt=""></div>
+      <h3>One picture</h3><p>"Elephant! E-L-E-P-H-A-N-T"</p>
     </div>
     <div class="arrow"><svg viewBox="0 0 48 24"><path d="M2 12h38M30 3l10 9-10 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="step">
       <div class="bubble"><img src="assets/img/star.svg" alt=""></div>
-      <h3>A star</h3><p>One more star in the row</p>
+      <h3>A star</h3><p>One more in the row</p>
     </div>
     <div class="arrow"><svg viewBox="0 0 48 24"><path d="M2 12h38M30 3l10 9-10 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="step">
       <div class="bubble" style="background:var(--teal-soft)"><img src="assets/img/thumbsup.svg" alt=""></div>
-      <h3>All done</h3><p>Today's pictures, then finish</p>
+      <h3>All done</h3><p>A calm finish</p>
     </div>
   </div>
-  <div class="loop-return" style="width:68%; margin-left:9%"><span>next letter: repeat for 3, 5 or 8 turns</span></div>
+  <div class="loop-return" style="width:68%; margin-left:9%"><span>next turn: repeat 3, 5 or 8 times</span></div>
   <div class="grid-3" style="margin-top:38px">
     <p class="small muted" style="margin:0"><b style="color:var(--text)">Short:</b> about a minute per turn and 3–8 turns per session, so it ends before attention runs out.</p>
-    <p class="small muted" style="margin:0"><b style="color:var(--text)">Predictable:</b> the steps never change order, so he knows exactly what comes next.</p>
+    <p class="small muted" style="margin:0"><b style="color:var(--text)">Predictable:</b> the steps never change order, and the level only changes between sessions.</p>
     <p class="small muted" style="margin:0"><b style="color:var(--text)">Positive:</b> there is no fail state anywhere in the loop, only "not yet".</p>
   </div>
 </section>
 
 <!-- 9 · SCREEN: HOME ===================================================== -->
 <section class="slide">
-  <p class="kicker">Mock screen 1 of 5 · Start</p>
+  <p class="kicker">Mock screen 1 · Start</p>
   <h2>Start: the plan, one button, nothing else</h2>
   <div class="row" style="gap:34px; align-items:flex-start">
-    <div class="device tablet" style="flex:0 0 700px">
+    <div class="device tablet" style="flex:0 0 680px">
       <div style="position:relative">
         <img src="assets/screens/home.png" alt="Start screen with First write, Then picture cards and a Start button">
-        <span class="marker" style="left:26%; top:31%">1</span>
-        <span class="marker" style="left:62%; top:66%">2</span>
-        <span class="marker" style="left:65%; top:84%">3</span>
-        <span class="marker" style="left:90%; top:9%">4</span>
+        <span class="marker" style="left:28.5%; top:39%">1</span>
+        <span class="marker" style="left:61.5%; top:72%">2</span>
+        <span class="marker" style="left:92%; top:11%">3</span>
       </div>
     </div>
     <ol class="legend" style="margin-top:6px">
-      <li><b>First → Then</b>Shows the routine before it starts, like the visual schedules he may use at therapy or school.</li>
-      <li><b>One big Start button</b>Starts a short session of 3, 5 or 8 turns.</li>
-      <li><b>Picture book</b>Every picture he has earned, to look at any time.</li>
-      <li><b>Grown-ups only</b>Press and hold for 2 seconds. A quick tap does nothing, so he can't change settings by accident.</li>
+      <li><b>First → Then</b>Shows the routine before it starts, like the visual schedules used in therapy and at school.</li>
+      <li><b>One big Start button</b>Starts a short session of 3, 5 or 8 turns at his current level.</li>
+      <li><b>Grown-ups only</b>Press and hold for 2 seconds. A quick tap does nothing, so he can't open the settings by accident.</li>
     </ol>
   </div>
+  <p class="small muted" style="margin-top:18px">There is no picture gallery for him to browse or choose from. Pictures only appear as a reward.</p>
 </section>
 
 <!-- 10 · SCREEN: TRACE =================================================== -->
 <section class="slide">
-  <p class="kicker">Mock screen 2 of 5 · Trace</p>
-  <h2>Trace: clear prompts and a path he can't get wrong</h2>
+  <p class="kicker">Mock screen 2 · Trace (Level 1)</p>
+  <h2>Trace: big, forgiving, and impossible to get wrong</h2>
   <div class="row" style="gap:34px; align-items:flex-start">
-    <div class="device tablet" style="flex:0 0 700px">
+    <div class="device tablet" style="flex:0 0 680px">
       <div style="position:relative">
-        <img src="assets/screens/trace.png" alt="Tracing the letter A: first stroke inked in blue, a numbered green start dot and an orange demo dot on stroke two">
-        <span class="marker" style="left:57.5%; top:20%">1</span>
-        <span class="marker" style="left:60%; top:41%">2</span>
-        <span class="marker" style="left:66%; top:60%">3</span>
-        <span class="marker" style="left:35%; top:55%">4</span>
-        <span class="marker" style="left:64.5%; top:5.5%">5</span>
-        <span class="marker" style="left:8.5%; top:5.5%">6</span>
+        <img src="assets/screens/trace-l1.png" alt="Tracing the number 4: first stroke inked in blue, a numbered green start dot and an orange demo dot on stroke two">
+        <span class="marker" style="left:61%; top:21%">1</span>
+        <span class="marker" style="left:61%; top:41%">2</span>
+        <span class="marker" style="left:61.5%; top:63%">3</span>
+        <span class="marker" style="left:37%; top:43%">4</span>
+        <span class="marker" style="left:40.5%; top:11.5%">5</span>
+        <span class="marker" style="left:63.5%; top:5.5%">6</span>
       </div>
     </div>
     <ol class="legend" style="margin-top:0; gap:9px">
-      <li><b>Numbered green dot</b>Where to start, and which stroke comes next.</li>
+      <li><b>Numbered green dot</b>Where to put the pen, and which stroke comes next.</li>
       <li><b>Arrows + finish ring</b>Which way to go and where to stop.</li>
-      <li><b>"Show me" dot</b>Draws the stroke first. Plays again if he's stuck for 7 seconds.</li>
-      <li><b>Blue ink</b>Only moves forward along the right path. If his finger wanders, it simply waits.</li>
+      <li><b>"Show me" dot</b>Draws the stroke first, and again if he is stuck for 7 seconds.</li>
+      <li><b>Blue ink</b>Only moves forward along the right path. If the pen wanders, it simply waits.</li>
+      <li><b>Name + voice</b>"Number 4": the voice says "four" as it appears.</li>
       <li><b>Stars</b>How many turns are left today.</li>
-      <li><b>Home</b>Hold to leave. The Android back button is ignored.</li>
     </ol>
   </div>
 </section>
 
-<!-- 11 · SCREEN: REWARD ================================================== -->
+<!-- 11 · GROWS WITH HIM ================================================== -->
 <section class="slide">
-  <p class="kicker">Mock screen 3 of 5 · Reward</p>
+  <p class="kicker">Mock screen 3 · Grows with him</p>
+  <h2>As he masters it: tighter path, smaller characters, more per screen</h2>
+  <div class="trio">
+    <div>
+      <div class="device tablet"><img src="assets/screens/trace-l1.png" alt="Level 1: one very big number"></div>
+      <p class="cap"><b>Level 1</b>One number, very big, lots of room. Arrows, dots and demo.</p>
+    </div>
+    <div>
+      <div class="device tablet"><img src="assets/screens/trace-l3.png" alt="Level 3: two numbers per screen"></div>
+      <p class="cap"><b>Level 3</b>Two numbers per screen, a little smaller, less room.</p>
+    </div>
+    <div>
+      <div class="device tablet"><img src="assets/screens/trace-l6.png" alt="Level 6: three smaller numbers with a faint guide"></div>
+      <p class="cap"><b>Level 6</b>Three smaller numbers, tight path, faint guide only.</p>
+    </div>
+  </div>
+  <p style="margin-top:22px; font-size:18px"><b>Automatic:</b> he moves up a level after 5 turns averaging 4★, and steps back after 3 turns under 2★, so it stays fun. Changes only happen <b>between sessions</b>, never mid-practice. You can also fix the level yourself.</p>
+</section>
+
+<!-- 12 · SCREEN: REWARD ================================================== -->
+<section class="slide">
+  <p class="kicker">Mock screen 4 · Reward</p>
   <h2>Reward: one picture, its spelling, and a star</h2>
   <div class="row" style="gap:34px; align-items:flex-start">
-    <div class="device tablet" style="flex:0 0 700px">
+    <div class="device tablet" style="flex:0 0 680px">
       <div style="position:relative">
-        <img src="assets/screens/reward.png" alt="Reward screen: apple picture, APPLE letter tiles with the P lit, one star filled">
-        <span class="marker" style="left:67%; top:17%">1</span>
-        <span class="marker" style="left:27.5%; top:72%">2</span>
-        <span class="marker" style="left:41.8%; top:83%">3</span>
-        <span class="marker" style="left:35.5%; top:5.5%">4</span>
-        <span class="marker" style="left:70.5%; top:92%">5</span>
+        <img src="assets/screens/reward.png" alt="Reward screen: elephant picture, ELEPHANT letter tiles with one lit, one star filled">
+        <span class="marker" style="left:65.5%; top:18%">1</span>
+        <span class="marker" style="left:22%; top:72%">2</span>
+        <span class="marker" style="left:40.4%; top:83%">3</span>
+        <span class="marker" style="left:37%; top:5.5%">4</span>
+        <span class="marker" style="left:68.5%; top:91%">5</span>
       </div>
     </div>
     <ol class="legend" style="margin-top:0">
-      <li><b>One picture, straight away</b>Exactly the reward asked for. Tap it to hear it again.</li>
-      <li><b>The word in big tiles</b>The first letter is blue: the letter he just wrote.</li>
-      <li><b>Voice + highlight</b>"A is for Apple. A, P, P, L, E. Apple!" Each tile lights up as it is said.</li>
+      <li><b>One picture, straight away</b>A different one each time: 300 in a shuffled order, none repeated until all have been seen. Tap it to hear it again.</li>
+      <li><b>The word in big tiles</b>Long words get smaller tiles so they always fit on one line.</li>
+      <li><b>Voice + highlight</b>"Elephant! E, L, E, P, H, A, N, T. Elephant!" Each tile lights up as it's said.</li>
       <li><b>A star fills</b>Progress he can see, like a token board.</li>
-      <li><b>Next</b>Or <i>Again</i> to write the same letter once more.</li>
+      <li><b>Next</b>Or <i>Again</i> to write the same characters once more.</li>
     </ol>
   </div>
 </section>
 
-<!-- 12 · SCREEN: DONE + BOOK ============================================= -->
+<!-- 13 · 300 PICTURES ==================================================== -->
 <section class="slide">
-  <p class="kicker">Mock screen 4 of 5 · Finish &amp; collect</p>
-  <h2>A clear ending, and a book of pictures to collect</h2>
-  <div class="row" style="gap:28px">
+  <p class="kicker">Reward pictures</p>
+  <h2>300 everyday pictures with simple words he can learn</h2>
+  <div class="row" style="gap:36px">
     <div class="col">
-      <div class="device tablet"><img src="assets/screens/done.png" alt="All done screen with today's pictures"></div>
-      <p style="margin-top:16px; font-size:18px"><b>All done.</b> A clear finish helps with the move to the next activity. It shows only today's pictures, then one Finish button.</p>
+      <div class="montage">
+        <img src="assets/img/r/1f436.svg" alt="Dog"><img src="assets/img/r/1f418.svg" alt="Elephant"><img src="assets/img/r/1f682.svg" alt="Train"><img src="assets/img/r/1f34e.svg" alt="Apple"><img src="assets/img/r/1f680.svg" alt="Rocket"><img src="assets/img/r/1f98b.svg" alt="Butterfly"><img src="assets/img/r/26bd.svg" alt="Ball">
+        <img src="assets/img/r/1f34c.svg" alt="Banana"><img src="assets/img/r/1f68c.svg" alt="Bus"><img src="assets/img/r/1f382.svg" alt="Cake"><img src="assets/img/r/1f431.svg" alt="Cat"><img src="assets/img/r/1f996.svg" alt="Dinosaur"><img src="assets/img/r/1f41f.svg" alt="Fish"><img src="assets/img/r/1fa81.svg" alt="Kite">
+        <img src="assets/img/r/1f981.svg" alt="Lion"><img src="assets/img/r/1f319.svg" alt="Moon"><img src="assets/img/r/1f989.svg" alt="Owl"><img src="assets/img/r/1f355.svg" alt="Pizza"><img src="assets/img/r/1f308.svg" alt="Rainbow"><img src="assets/img/r/1f9f8.svg" alt="Teddy"><img src="assets/img/r/1f69c.svg" alt="Tractor">
+        <img src="assets/img/r/2602.svg" alt="Umbrella"><img src="assets/img/r/1f433.svg" alt="Whale"><img src="assets/img/r/1f33b.svg" alt="Sunflower"><img src="assets/img/r/1f992.svg" alt="Giraffe"><img src="assets/img/r/1f941.svg" alt="Drum"><img src="assets/img/r/1f353.svg" alt="Strawberry"><img src="assets/img/r/1f427.svg" alt="Penguin">
+      </div>
     </div>
-    <div class="col">
-      <div class="device tablet"><img src="assets/screens/book.png" alt="Picture book grid with earned pictures and letters still to earn"></div>
-      <p style="margin-top:16px; font-size:18px"><b>Picture book.</b> 30 pictures to collect: A–Z plus 4 warm-up strokes. Tap one to hear its spelling again. Letters not yet earned wait as outlines.</p>
+    <div class="col" style="flex:0 0 430px">
+      <div class="card">
+        <h3 style="margin-bottom:14px">What's in the 300</h3>
+        <div class="bars">
+          <div class="bar"><span>Animals</span><span class="track"><span class="fill" style="display:block; width:100%"></span></span><b>71</b></div>
+          <div class="bar"><span>Food &amp; drink</span><span class="track"><span class="fill" style="display:block; width:95.8%"></span></span><b>68</b></div>
+          <div class="bar"><span>Home &amp; clothes</span><span class="track"><span class="fill" style="display:block; width:67.6%"></span></span><b>48</b></div>
+          <div class="bar"><span>Toys, music &amp; play</span><span class="track"><span class="fill" style="display:block; width:46.5%"></span></span><b>33</b></div>
+          <div class="bar"><span>Nature &amp; weather</span><span class="track"><span class="fill" style="display:block; width:42.3%"></span></span><b>30</b></div>
+          <div class="bar"><span>Vehicles</span><span class="track"><span class="fill" style="display:block; width:39.4%"></span></span><b>28</b></div>
+          <div class="bar"><span>People, body, shapes</span><span class="track"><span class="fill" style="display:block; width:31%"></span></span><b>22</b></div>
+        </div>
+      </div>
+      <p style="font-size:16px; margin-top:14px">Common words a 4-year-old hears every day, from <b>Cat</b> and <b>Bus</b> to <b>Rickshaw</b> and <b>Lotus</b>. Nothing scary: no weapons, monsters or spiders.</p>
+      <p class="small muted">The list lives in one file (rewards.js), so pictures and words are easy to change.</p>
     </div>
   </div>
 </section>
 
-<!-- 13 · SCREEN: GROWN-UPS =============================================== -->
+<!-- 14 · DONE ============================================================ -->
 <section class="slide">
-  <p class="kicker">Mock screen 5 of 5 · Grown-ups</p>
-  <h2>Grown-ups: see progress, tune the help, add his photos</h2>
-  <div class="row" style="gap:28px">
+  <p class="kicker">Mock screen 5 · All done</p>
+  <h2>A clear, calm ending</h2>
+  <div class="row" style="gap:34px; align-items:center">
+    <div class="device tablet" style="flex:0 0 640px"><img src="assets/screens/done.png" alt="All done screen with a thumbs up, a full row of stars and a Finish button"></div>
     <div class="col">
-      <div class="device tablet"><img src="assets/screens/parent.png" alt="Grown-ups area: progress counts and a per-letter practice map"></div>
-      <p style="margin-top:16px; font-size:18px"><b>Progress at a glance.</b> Pictures earned, shapes traced, sessions done, and a map of every letter (darker = practised more).</p>
-    </div>
-    <div class="col">
-      <div class="device tablet"><img src="assets/screens/parent-help.png" alt="Grown-ups area: tracing room, guide strength, show me, voice, chime settings"></div>
-      <p style="margin-top:16px; font-size:18px"><b>Help and senses.</b> Tracing room, guide strength, demo on/off, voice, chimes and calm motion. Further down: his name and your own photos as rewards.</p>
+      <ul class="clean check">
+        <li>A thumbs up, the full row of stars, one Finish button.</li>
+        <li>No pictures here: each success has already shown its one picture.</li>
+        <li>The same ending every time helps with moving on to the next activity.</li>
+        <li>The session is saved to the grown-ups history.</li>
+      </ul>
     </div>
   </div>
 </section>
 
-<!-- 14 · LEARNING PATH =================================================== -->
+<!-- 15 · GROWN-UPS: STARS ================================================ -->
+<section class="slide">
+  <p class="kicker">Mock screen 6 · Grown-ups</p>
+  <h2>Stars per character: where he's doing well, where he needs practice</h2>
+  <div class="row" style="gap:30px; align-items:flex-start">
+    <div class="device tablet" style="flex:0 0 640px">
+      <div style="position:relative">
+        <img src="assets/screens/parent-stars.png" alt="Grown-ups area: star rating for each number 1 to 9, with doing well and needs practice lists">
+      </div>
+    </div>
+    <div class="col">
+      <ul class="clean check">
+        <li><b>Doing well / Needs practice</b>: the strongest and weakest characters at a glance.</li>
+        <li><b>A card for every character</b>: green 4–5★, yellow 3★, red 1–2★.</li>
+        <li><b>Average of the last 5 tries</b>, with the number of tries and a trend arrow (↑ getting better).</li>
+        <li><b>Level and history</b> further down the page.</li>
+      </ul>
+      <div class="card soft" style="margin-top:14px; padding:14px 18px">
+        <p style="font-size:15.5px; margin:0"><b>How a try is scored.</b> Each try gets 1–5★ from how closely the pen stayed on the path (compared with the room at his level), minus a little each time it wandered right off, or "Show me" help was needed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 · GROWN-UPS: LEVEL & HISTORY ====================================== -->
+<section class="slide">
+  <p class="kicker">Mock screen 7 · Grown-ups</p>
+  <h2>Level, history and settings</h2>
+  <div class="row" style="gap:30px; align-items:flex-start">
+    <div class="device tablet" style="flex:0 0 640px"><img src="assets/screens/parent-level.png" alt="Grown-ups area: level ladder from 1 to 7 and a list of recent sessions with stars"></div>
+    <div class="col">
+      <ul class="clean check">
+        <li><b>Level ladder 1–7</b> with what each level means, and how close he is to the next one.</li>
+        <li><b>Automatic or "I choose"</b>: let it grow with him, or fix a level.</li>
+        <li><b>Recent sessions</b>: date, level, turns and average stars.</li>
+        <li><b>What to practise</b>: numbers 1–9 (default), letters A–Z, or both. In order, mixed, or <i>more of the weak ones</i>.</li>
+        <li><b>Help &amp; senses</b>: "Show me" demo, voice, chimes, calm motion, stylus palm guard.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 17 · LEARNING PATH =================================================== -->
 <section class="slide">
   <p class="kicker">Learning path</p>
-  <h2>From first strokes to his name, in the order children develop</h2>
-  <div class="levels">
-    <div class="level"><div class="lv">Level 1</div><h3>Warm-up strokes</h3><div class="glyphs">│ — ○ +</div><p>The first shapes children copy: lines, then circle, then cross.</p></div>
-    <div class="level"><div class="lv">Level 2</div><h3>Straight lines</h3><div class="glyphs">L T I H E F</div><p>Only up-down and across strokes. Every one starts at the top.</p></div>
-    <div class="level"><div class="lv">Level 3</div><h3>Slanty lines</h3><div class="glyphs">V X A Z N M K Y W</div><p>Diagonals usually come around age 4 to 5.</p></div>
-    <div class="level"><div class="lv">Level 4</div><h3>Curves</h3><div class="glyphs">C O Q G S U J D P B R</div><p>Built on the circle from Level 1.</p></div>
-    <div class="level next"><div class="lv">Next</div><h3>His name, then words</h3><div class="glyphs" style="color:var(--muted)">NAME CAT</div><p>Trace each letter, then see the word's picture.</p></div>
-  </div>
-  <p style="margin:26px 0 0; font-size:18px"><b>Within each level, fade the help.</b> Suggested rule: move one step right when he finishes 4 of 5 turns without needing "Show me".</p>
-  <div class="fade-scale">
-    <div class="chip"><b>Arrows + dots</b>Full guidance and demo</div><span class="to">→</span>
-    <div class="chip"><b>Dots only</b>Start and finish only</div><span class="to">→</span>
-    <div class="chip"><b>Faint</b>Pale path, no arrows</div><span class="to">→</span>
-    <div class="chip" style="border:2px dashed var(--line-strong)"><b>Free write</b>Next version: no path</div>
-  </div>
-</section>
-
-<!-- 15 · REWARD SYSTEM =================================================== -->
-<section class="slide">
-  <p class="kicker">Reward system</p>
-  <h2>Small, immediate rewards built from what he loves</h2>
+  <h2>Numbers first, then letters, each through 7 levels</h2>
   <div class="row" style="gap:28px">
-    <div class="col">
-      <div class="card" style="display:grid; gap:16px">
-        <div style="display:flex; gap:16px; align-items:center"><img src="assets/img/apple.svg" alt="" style="width:50px"><div><h3>Every letter → 1 picture + its spelling</h3><p>Within a second of finishing. About 5 seconds long, then back to the routine.</p></div></div>
-        <div style="display:flex; gap:16px; align-items:center"><img src="assets/img/star.svg" alt="" style="width:50px"><div><h3>Every turn → 1 star</h3><p>A row of 3, 5 or 8 stars shows how much is left. Stars are never taken away.</p></div></div>
-        <div style="display:flex; gap:16px; align-items:center"><img src="assets/img/thumbsup.svg" alt="" style="width:50px"><div><h3>Every session → "All done"</h3><p>Today's pictures, together. A calm ending, not a big party.</p></div></div>
-        <div style="display:flex; gap:16px; align-items:center"><img src="assets/img/books.svg" alt="" style="width:50px"><div><h3>Over time → the picture book</h3><p>Collecting all 30 is a goal he can see.</p></div></div>
-      </div>
+    <div class="col" style="flex:0 0 380px; display:grid; gap:12px; align-content:start">
+      <div class="level" style="box-shadow:inset 0 0 0 3px var(--teal)"><div class="lv">Stage 1 · now</div><h3>Numbers</h3><div class="glyphs" style="min-height:0">1 2 3 4 5 6 7 8 9</div></div>
+      <div class="level"><div class="lv">Stage 2 · when ready</div><h3>Capital letters</h3><div class="glyphs" style="min-height:0; font-size:22px">A B C … X Y Z</div><p>Already built. Switch on in Grown-ups.</p></div>
+      <div class="level next"><div class="lv">Stage 3 · next version</div><h3>His name, then short words</h3></div>
     </div>
-    <div class="col" style="flex:0 0 430px; display:grid; gap:16px; align-content:start">
-      <div class="card" style="background:var(--star-soft)">
-        <h3>Make it his</h3>
-        <p>Swap any built-in picture for your own photo and word. For example <b>T → his toy train</b>, <b>D → our dog</b>, <b>M → Mum</b>. Interest-based rewards are among the strongest motivators.</p>
-      </div>
-      <div class="card">
-        <h3>Never in the app</h3>
-        <p>Losing stars, timers, scores, leaderboards, ads, purchases, pop-ups.</p>
-      </div>
-      <div class="card soft">
-        <h3>Watch for</h3>
-        <p>If a picture over-excites or upsets him, swap it. If he rushes to the pictures, drop to 3 turns and keep the guide strong.</p>
-      </div>
+    <div class="col">
+      <table class="compare levels-t">
+        <thead><tr><th>Level</th><th>Per screen</th><th>Size</th><th>Room to wander</th><th>Guide</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>1</td><td>Very big</td><td>Lots</td><td>Arrows + dots</td></tr>
+          <tr><td>2</td><td>1</td><td>Big</td><td>Plenty</td><td>Arrows + dots</td></tr>
+          <tr><td>3</td><td>2</td><td>Big</td><td>Good</td><td>Arrows + dots</td></tr>
+          <tr><td>4</td><td>2</td><td>Medium</td><td>Some</td><td>Dots only</td></tr>
+          <tr><td>5</td><td>3</td><td>Medium</td><td>Less</td><td>Dots only</td></tr>
+          <tr><td>6</td><td>3</td><td>Smaller</td><td>Little</td><td>Faint</td></tr>
+          <tr><td>7</td><td>4</td><td>Small</td><td>Tight</td><td>Faint</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted" style="margin-top:10px">Room to wander goes from 18 to 6 hundredths of the character's height. "Show me" stays available at every level.</p>
     </div>
   </div>
 </section>
 
-<!-- 16 · ARCHITECTURE ==================================================== -->
+<!-- 18 · ARCHITECTURE ==================================================== -->
 <section class="slide">
   <p class="kicker">How it's built</p>
-  <h2>One codebase, a real app on Android and iPad, fully offline</h2>
+  <h2>A real Android app for the Lenovo tablet, fully offline</h2>
   <div class="row" style="gap:30px">
     <div class="col arch">
-      <div class="layer native"><h3>Native app shell <small>Capacitor 8 · Android APK &amp; iOS app</small></h3>
-        <div class="boxes"><div class="box"><b>Text-to-speech</b>Uses the tablet's own voice</div><div class="box"><b>Back button</b>Can't drop him out of the app</div><div class="box"><b>App icon &amp; splash</b>Launches like any other app</div></div></div>
+      <div class="layer native"><h3>Android app shell <small>Capacitor 8 · APK · Android 7 and newer</small></h3>
+        <div class="boxes"><div class="box"><b>Full screen</b>No status or nav bars; screen stays on</div><div class="box"><b>Back button</b>Ignored on his screens</div><div class="box"><b>Text-to-speech</b>The tablet's own voice</div></div></div>
       <div class="layer ui"><h3>Screens <small>HTML · CSS · JavaScript</small></h3>
-        <div class="boxes"><div class="box"><b>Child</b>Start · Trace · Reward · All done · Picture book</div><div class="box"><b>Grown-ups</b>Progress · Settings · Own photos</div></div></div>
-      <div class="layer engine"><h3>Engines <small>no libraries needed</small></h3>
-        <div class="boxes"><div class="box"><b>Tracing engine</b>Canvas drawing, stroke paths, forward-only matching</div><div class="box"><b>Reward engine</b>Picture, letter tiles, voice in sync</div><div class="box"><b>Letter data</b>30 shapes as ordered strokes (letters.js)</div></div></div>
+        <div class="boxes"><div class="box"><b>Child</b>Start · Trace · Reward · All done</div><div class="box"><b>Grown-ups</b>Stars · Level · History · Settings</div></div></div>
+      <div class="layer engine"><h3>Engines <small>no extra libraries</small></h3>
+        <div class="boxes"><div class="box"><b>Tracing + stylus</b>Pen detection, palm guard, hover ring</div><div class="box"><b>Mastery</b>7 levels, scoring, level-up rules</div><div class="box"><b>Rewards</b>300 pictures, shuffled deck, voice</div></div></div>
       <div class="layer store"><h3>On the tablet only <small>no server, no account</small></h3>
-        <div class="boxes"><div class="box"><b>Settings &amp; progress</b>Local storage</div><div class="box"><b>Own photos</b>IndexedDB, resized to 720 px</div></div></div>
+        <div class="boxes"><div class="box"><b>Settings, stars, level, history</b>Local storage</div><div class="box"><b>Pictures &amp; font</b>Bundled inside the app</div></div></div>
     </div>
     <div class="col" style="flex:0 0 400px">
       <h3 style="margin-bottom:12px">Why this stack</h3>
       <table class="compare" style="font-size:14.5px">
         <tbody>
-          <tr><td class="app" style="width:34%"><b style="font-size:16px">Capacitor</b><span>chosen</span></td><td class="borrow">Web code becomes a real Android and iOS app. Fast to change; the tracing logic is plain, testable JavaScript.</td></tr>
-          <tr><td class="app"><b style="font-size:16px">Flutter</b></td><td>Excellent drawing performance. Would mean rewriting in Dart: a good option if the app grows.</td></tr>
+          <tr><td class="app" style="width:34%"><b style="font-size:16px">Capacitor</b><span>chosen</span></td><td class="borrow">A real installable Android app (no Play Store needed). Quick to change. The tracing logic is plain, testable JavaScript.</td></tr>
+          <tr><td class="app"><b style="font-size:16px">Flutter</b></td><td>Excellent drawing performance, but would mean rewriting in Dart.</td></tr>
+          <tr><td class="app"><b style="font-size:16px">Kotlin (native)</b></td><td>Best native feel and stylus pressure APIs. More work for each change.</td></tr>
           <tr><td class="app"><b style="font-size:16px">React Native</b></td><td>Needs an extra canvas library (e.g. Skia) for smooth tracing.</td></tr>
-          <tr><td class="app"><b style="font-size:16px">Swift + Kotlin</b></td><td>Best native feel, but two separate apps to build and maintain.</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 </section>
 
-<!-- 17 · TRACING ENGINE ================================================== -->
+<!-- 19 · TRACING ENGINE ================================================== -->
 <section class="slide">
   <p class="kicker">How it's built · tracing engine</p>
   <h2>How the app knows he traced the letter correctly</h2>
@@ -452,84 +511,84 @@
     <div class="col">
       <ol class="legend" style="gap:11px">
         <li><b>Letters are data</b>Each shape is a list of strokes in a 100 × 100 box, in the order children are taught. Sampled every 1 unit.</li>
-        <li><b>Start at the head</b>The finger must land near the blue or green dot. Anywhere else just makes the dot pulse.</li>
-        <li><b>Look ahead, never back</b>The engine finds the closest point up to 22 units ahead. If it is inside the tracing room (15, 10.5 or 7 units), the ink moves there.</li>
+        <li><b>Start at the head</b>The pen must land near the blue or green dot. Anywhere else just makes the dot pulse.</li>
+        <li><b>Look ahead, never back</b>The engine finds the closest point up to 22 units ahead. If it is inside the room allowed at his level (18 at Level 1 down to 6 at Level 7), the ink moves there.</li>
         <li><b>Order and direction for free</b>Progress only goes forward, so stroke order and direction are always right.</li>
-        <li><b>Wandering = pause</b>Too far away and the ink waits. Coming back to the dot picks it up again.</li>
+        <li><b>Wandering = pause</b>Too far away and the ink waits (counted for the stars). Coming back to the dot picks it up again.</li>
       </ol>
       <p class="small muted" style="margin-top:14px">Other apps use pixel masks ("colour inside the letter") or per-stroke paths with checkpoints. Per-stroke paths are what make demos, arrows and stroke order possible.</p>
     </div>
   </div>
 </section>
 
-<!-- 18 · STATUS & ROADMAP ================================================ -->
+<!-- 20 · STATUS & ROADMAP ================================================ -->
 <section class="slide">
   <p class="kicker">Status &amp; roadmap</p>
   <h2>What exists today, and what comes next</h2>
   <div class="grid-3">
     <div class="card" style="box-shadow:inset 0 0 0 3px var(--teal), 0 8px 22px rgba(31,42,68,.06)">
-      <span class="pill">Built · v0.1</span>
+      <span class="pill">Built · v0.2</span>
       <ul class="clean check" style="margin-top:14px">
-        <li>26 capitals + 4 warm-up strokes</li>
-        <li>Errorless tracing with demo</li>
-        <li>Picture + spelling + voice reward</li>
-        <li>Stars, All done, picture book</li>
-        <li>Grown-ups area and own photos</li>
-        <li>Android and iOS app projects</li>
+        <li>Numbers 1–9 (letters A–Z ready)</li>
+        <li>7 mastery levels, automatic</li>
+        <li>Stylus palm guard and hover ring</li>
+        <li>300 pictures, one per success</li>
+        <li>Stars per character and session history</li>
+        <li>Android APK for the Lenovo tablet</li>
       </ul>
     </div>
     <div class="card">
-      <span class="pill ink">Next · v0.2</span>
+      <span class="pill ink">Next · v0.3</span>
       <ul class="clean dash" style="margin-top:14px">
         <li>Write his name</li>
         <li>Free-write mode (no path) to bridge to paper</li>
-        <li>Record a parent's voice for the words</li>
-        <li>Numbers 0–9 and lowercase letters</li>
-        <li>Weekly progress summary</li>
+        <li>A parent's recorded voice for the words</li>
+        <li>Number 0 and lowercase letters</li>
+        <li>Weekly progress summary to share</li>
       </ul>
     </div>
     <div class="card">
       <span class="pill star">Later</span>
       <ul class="clean dash" style="margin-top:14px">
-        <li>3-letter words: trace C-A-T → cat</li>
-        <li>Printable worksheets of the week's letters</li>
-        <li>Suggested level-ups from progress data</li>
+        <li>Short words: trace C-A-T → cat</li>
+        <li>Counting: trace 3, see 3 apples</li>
+        <li>Printable worksheets of weak characters</li>
         <li>Review with his OT or speech therapist</li>
       </ul>
     </div>
   </div>
   <div class="card soft" style="margin-top:20px; display:flex; gap:24px; align-items:center">
     <h3 style="flex:0 0 200px">2-week home trial</h3>
-    <p style="font-size:17px; margin:0">5 minutes a day, same time each day. Note which letters he finishes without "Show me", which pictures he loves or dislikes, and his mood. Adjust tracing room and guide, then share the notes with his therapist.</p>
+    <p style="font-size:17px; margin:0">5 minutes a day, same time each day. Check the stars per character every few days, note which pictures he loves or dislikes, and his mood. Share the notes with his therapist.</p>
   </div>
 </section>
 
-<!-- 19 · ON THE TABLET =================================================== -->
+<!-- 21 · ON THE TABLET =================================================== -->
 <section class="slide">
-  <p class="kicker">Getting it on his tablet</p>
-  <h2>Install it, then lock him in (kindly)</h2>
+  <p class="kicker">Getting it on the Lenovo tablet</p>
+  <h2>Install it, then keep him inside it</h2>
   <div class="grid-2">
     <div class="card">
-      <h3>Android tablet or phone</h3>
+      <h3>Install</h3>
       <ol class="legend" style="margin-top:14px; gap:10px">
-        <li><b>Get the APK</b>Build it with one command (see the README in the repository).</li>
-        <li><b>Install</b>Open the file on the tablet and allow installs from that source.</li>
-        <li><b>Turn on App pinning</b>Settings → Security → App pinning. He stays inside Picture Pen until you unpin it.</li>
+        <li><b>Get the file</b>Download <code>picture-pen.apk</code> on the tablet (<a href="download/picture-pen.apk">download link</a>).</li>
+        <li><b>Allow the install</b>Open it and allow installs from this source. Android may warn that it's not from the Play Store: tap <i>Install anyway</i>.</li>
+        <li><b>Open Picture Pen</b>It starts on Numbers 1–9, Level 1.</li>
       </ol>
     </div>
     <div class="card">
-      <h3>iPad or iPhone</h3>
+      <h3>Set up for him</h3>
       <ol class="legend" style="margin-top:14px; gap:10px">
-        <li><b>Open on a Mac</b>Open <code>app/ios</code> in Xcode (needs a Mac).</li>
-        <li><b>Run on the iPad</b>Sign with your Apple ID and press Run. Free accounts need to reinstall every 7 days; the App Store needs a paid developer account.</li>
-        <li><b>Turn on Guided Access</b>Settings → Accessibility → Guided Access. Triple-click to lock the iPad to the app.</li>
+        <li><b>Pair the stylus</b>The palm guard turns on by itself once the pen touches the screen.</li>
+        <li><b>Turn on App pinning</b>In Settings, search for "App pinning" and turn it on. Then pin Picture Pen from the recent-apps screen.</li>
+        <li><b>Check the Grown-ups area</b>Press and hold the gear for 2 seconds. Set the turns and voice to suit him.</li>
       </ol>
     </div>
   </div>
-  <p class="small muted" style="margin-top:18px">Pinning or Guided Access matters: it stops him from leaving the app while he practises.</p>
+  <p class="small muted" style="margin-top:18px">The app works fully offline and stores everything on the tablet.</p>
 </section>
 
-<!-- 20 · SOURCES ========================================================= -->
+<!-- 22 · SOURCES ========================================================= -->
 <section class="slide">
   <p class="kicker">Sources</p>
   <h2 style="margin-bottom:14px">References</h2>

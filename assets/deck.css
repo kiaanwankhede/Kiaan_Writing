@@ -243,3 +243,22 @@ table.compare td.watch { background: #FCF4F2; }
   .controls, .progress, .rotate-hint { display: none !important; }
   .slide-foot .page { display: inline; }
 }
+
+/* ---------- v0.2 additions ---------- */
+.montage { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+.montage img { width: 100%; aspect-ratio: 1; background: #fff; border-radius: 14px; padding: 9px; box-shadow: 0 4px 12px rgba(31,42,68,.06); }
+.bars { display: grid; gap: 7px; }
+.bars .bar { display: grid; grid-template-columns: 168px 1fr 34px; align-items: center; gap: 10px; font-size: 15.5px; }
+.bars .bar span:first-child { font-weight: 700; }
+.bars .track { height: 12px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.bars .fill { height: 100%; border-radius: 6px; background: var(--teal); }
+.bars .bar b { font: 900 16px var(--display); text-align: right; }
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.trio .device.tablet { padding: 10px; border-radius: 20px; }
+.trio .device.tablet img { border-radius: 10px; }
+.trio .cap { margin-top: 10px; font-size: 16px; }
+.trio .cap b { font-family: var(--display); font-weight: 900; font-size: 18px; display: block; }
+table.compare.levels-t td, table.compare.levels-t th { padding-top: 7px; padding-bottom: 7px; }
+table.compare.levels-t td { font-size: 15px; border-top-width: 4px; }
+table.compare.levels-t td:first-child { width: auto; font: 900 16px var(--display); }
+.stars-inline { color: var(--star); letter-spacing: 1px; }
