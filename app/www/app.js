@@ -45,7 +45,8 @@
     stats: {},      // key -> { tries, recent: [scores 0..1], best, last }
     sessions: [],   // { at, level, turns, avg }
     cursor: {},     // set -> next index when practising "in order"
-    rewardDeck: [], rewardPos: 0
+    rewardDeck: [], rewardPos: 0,
+    pen: { seen: false, varied: false } // has a stylus been used, and does it report pressure?
   };
 
   // ---------------------------------------------------------------- storage
@@ -266,8 +267,11 @@
     }
     return { stars: avg, tries: st.tries, trend: trend };
   }
-  function recordAttempt(key, score) {
+  function recordAttempt(key, score, m) {
     var st = data.stats[key] || { tries: 0, recent: [], best: 0, last: 0 };
+    if (m && m.presN >= 5 && data.pen.varied) {
+      st.pres = (st.pres || []).concat(Math.round(m.presSum / m.presN * 100) / 100).slice(-10);
+    }
     st.tries++;
     st.recent.push(Math.round(score * 100) / 100);
     if (st.recent.length > 10) st.recent = st.recent.slice(-10);
@@ -433,7 +437,7 @@
       key: key,
       strokes: SHAPES[key].strokes.map(function (s) { return resample(s, 1); }),
       si: 0, prog: 0, done: false,
-      m: { devSum: 0, devN: 0, lapses: 0, helps: 0, t0: 0 }
+      m: { devSum: 0, devN: 0, lapses: 0, helps: 0, t0: 0, presSum: 0, presN: 0 }
     };
   }
   function startTurn() {
@@ -516,6 +520,7 @@
     var p = toUnits(e, T.ci);
     T.finger = p; T.hover = null;
     if (!tryPickUp(p)) T.nudgeAt = performance.now(); // gently point at where to start; no error sound
+    notePressure(e);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!T || T.done) return;
@@ -530,6 +535,7 @@
       var p = toUnits(evs[i], T.ci);
       T.finger = p;
       if (T.tracking) advance(p); else tryPickUp(p);
+      notePressure(evs[i]);
     }
   });
   function release(e) {
@@ -540,6 +546,19 @@
   canvas.addEventListener('pointerup', release);
   canvas.addEventListener('pointercancel', release);
   canvas.addEventListener('pointerleave', function (e) { if (T && e.pointerType === 'pen' && T.downId === null) T.hover = null; });
+
+  // Pen pressure (0..1), reported by active styluses such as the Lenovo Tab Pen.
+  // A passive rubber-tip stylus acts like a finger and reports no pressure.
+  function notePressure(ev) {
+    if (ev.pointerType !== 'pen' || !T || !T.tracking || T.done) return;
+    if (!data.pen.seen) { data.pen.seen = true; save(); }
+    var pr = ev.pressure;
+    if (!(pr > 0)) return;
+    if (!data.pen.varied && Math.abs(pr - 0.5) > 0.01 && pr < 1) { data.pen.varied = true; save(); }
+    var m = cur().m;
+    m.presSum += pr; m.presN++;
+  }
+  function pressureWord(v) { return v < 0.2 ? 'light' : v > 0.65 ? 'pressing hard' : 'comfortable'; }
 
   function tryPickUp(p) {
     var c = cur();
@@ -590,7 +609,7 @@
     c.si = c.strokes.length - 1;
     c.done = true;
     c.score = scoreAttempt(c.m, tolUnits());
-    recordAttempt(c.key, c.score);
+    recordAttempt(c.key, c.score, c.m);
     T.tracking = false;
     if (T.ci < T.chars.length - 1) {
       chime('char');
@@ -875,6 +894,7 @@
       tr.children[3].innerHTML = starRow(starsFor(s.avg));
       tb.appendChild(tr);
     });
+    renderPressure(keys);
     var seen = data.rewardPos || 0;
     $('pictures-seen').textContent = seen + ' of ' + REWARDS.length + ' pictures shown in this round';
 
@@ -889,6 +909,30 @@
       for (var j = 0; j < btns.length; j++) btns[j].setAttribute('aria-pressed', btns[j].dataset.value === String(S[setting]) ? 'true' : 'false');
     }
     $('name-input').value = S.name || '';
+  }
+
+  function renderPressure(keys) {
+    var box = $('pressure-body');
+    if (!data.pen.seen) { box.innerHTML = '<p class="hint">No stylus used yet. Pressure appears here once he writes with the pen.</p>'; return; }
+    if (!data.pen.varied) { box.innerHTML = '<p class="hint">This stylus does not report pressure, so it works like a finger. An active pen (one that pairs with the tablet, such as the Lenovo Tab Pen) is needed to measure pressure.</p>'; return; }
+    var all = [], rows = [];
+    keys.forEach(function (k) {
+      var st = data.stats[k];
+      if (st && st.pres && st.pres.length) {
+        var r = st.pres.slice(-5), avg = r.reduce(function (a, b) { return a + b; }, 0) / r.length;
+        all = all.concat(r);
+        rows.push({ k: k, v: avg });
+      }
+    });
+    if (!all.length) { box.innerHTML = '<p class="hint">Pressure will appear after his next tries with the pen.</p>'; return; }
+    var mean = all.reduce(function (a, b) { return a + b; }, 0) / all.length;
+    var html = '<div class="gauge"><div class="zones"><span>Light</span><span>Comfortable</span><span>Pressing hard</span></div>' +
+      '<div class="gbar"><i style="left:' + Math.round(clamp(mean, 0, 1) * 100) + '%"></i></div></div>' +
+      '<p class="pres-now">Overall: <b>' + pressureWord(mean) + '</b> (' + Math.round(mean * 100) + '%)</p><ul class="pres-grid">';
+    rows.forEach(function (r) {
+      html += '<li class="' + (r.v < 0.2 ? 'lo' : r.v > 0.65 ? 'hi' : 'ok') + '"><b>' + r.k + '</b><span><i style="width:' + Math.round(clamp(r.v, 0, 1) * 100) + '%"></i></span><small>' + Math.round(r.v * 100) + '%</small></li>';
+    });
+    box.innerHTML = html + '</ul><p class="hint">Average pen pressure over his last 5 tries per character. Every pen reads a little differently, so the trend matters more than the exact number. Steady, comfortable pressure helps when he moves to pencil and paper.</p>';
   }
 
   $('set-select').addEventListener('change', function (e) { S.set = e.target.value; save(); renderParent(); });

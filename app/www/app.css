@@ -285,6 +285,22 @@ select, input[type="text"] {
 table.sessions { width: 100%; border-collapse: collapse; font-size: 16px; }
 table.sessions td { padding: 8px 6px; border-bottom: 1px solid var(--line); }
 table.sessions td.muted { color: var(--muted); }
+.gauge { margin: 4px 0 6px; }
+.gauge .zones { display: grid; grid-template-columns: 20fr 45fr 35fr; font-size: 13px; font-weight: 800; color: var(--muted); }
+.gauge .zones span:nth-child(2) { text-align: center; }
+.gauge .zones span:nth-child(3) { text-align: right; }
+.gauge .gbar { position: relative; height: 14px; border-radius: 7px; margin-top: 4px;
+  background: linear-gradient(90deg, #F3E2B5 0 20%, #C4E0D8 20% 65%, #F0CFCA 65% 100%); }
+.gauge .gbar i { position: absolute; top: -5px; width: 6px; height: 24px; margin-left: -3px; border-radius: 3px; background: var(--text); }
+.pres-now { margin: 8px 0 10px; font-size: 17px; }
+.pres-grid { list-style: none; margin: 0 0 6px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.pres-grid li { display: grid; grid-template-columns: 26px 1fr 40px; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 12px; background: var(--bg); }
+.pres-grid b { font-size: 20px; font-weight: 900; }
+.pres-grid span { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.pres-grid span i { display: block; height: 100%; background: var(--primary); }
+.pres-grid li.lo span i { background: #D9A400; }
+.pres-grid li.hi span i { background: var(--danger); }
+.pres-grid small { font-size: 13px; color: var(--muted); text-align: right; font-weight: 800; }
 .fineprint { color: var(--muted); font-size: 14px; text-align: center; margin: 8px 0 0; }
 .fineprint a { color: inherit; }
 

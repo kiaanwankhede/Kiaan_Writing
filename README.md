@@ -19,7 +19,15 @@ Built as an **Android app for a Lenovo tablet with a stylus**.
 - **Grows with him (7 levels).** Level 1 is one very big number with lots of room to wander. As he masters each level, the room shrinks, the numbers get smaller, and more appear per screen (up to 4). The level moves up after 5 turns averaging 4★, and steps back after 3 turns under 2★. Changes only happen between sessions. You can also fix the level yourself.
 - **Stars per character, for you.** Each try is scored 1–5★ from how closely the pen followed the path (compared with the room at his level), minus a little each time it wandered right off or needed "Show me". The Grown-ups area shows each character's average over the last 5 tries, a trend arrow, "Doing well / Needs practice" lists, his level, and the recent session history.
 - **Made for a stylus.** A palm guard ignores fingers and a resting palm while the pen is in use, and a ring shows where the pen is hovering.
+- **Pen pressure.** With an active pen (one that pairs with the tablet, such as the Lenovo Tab Pen), the app records how hard he presses. The Grown-ups area shows it as light, comfortable or pressing hard, overall and per character. A plain rubber-tip stylus can't sense pressure, and the app says so.
 - **Safe and private.** Full screen, the back button is ignored on his screens, and the Grown-ups area needs a 2-second press on the gear. Works fully offline. No ads, no accounts, and no data leaves the tablet.
+
+## Road to pencil and paper
+
+1. **Now:** tracing with a stylus; guides fade and characters shrink as he masters each level; pen pressure is measured.
+2. **Next (v0.4):** free-write levels with no path, a paper-size level, and pencil-look ink that darkens with pressure.
+3. **Paper turns:** printable sheets of his weak characters. When he writes one on paper, a grown-up taps "Done on paper" and he gets his one picture, the same as on the tablet.
+4. **Alongside:** a short, chunky or triangular pencil, and his OT checking grip and pressure.
 
 ## Install on the Lenovo tablet
 
