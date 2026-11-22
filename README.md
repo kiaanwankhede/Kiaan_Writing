@@ -1,79 +1,54 @@
 # Picture Pen
 
 A calm, reward-based writing app for a young autistic learner who loves pictures.
+Built as an **Android app for a Lenovo tablet with a stylus**.
 
-**Write a letter → see one picture → see and hear its spelling.**
+**Trace a number → see one picture → see and hear its spelling.**
 
 | | |
 |---|---|
-| **Presentation** (research, design principles, mock screens, app plan) | `docs/index.html`, published with GitHub Pages |
-| **The app** (Android + iPad/iPhone) | `app/` (a Capacitor project) |
+| **Android app (APK)** | `docs/download/picture-pen.apk` |
+| **Presentation** (research, design, mock screens, plan) | `docs/index.html`, published with GitHub Pages |
+| **App source** | `app/` (Capacitor project: `app/www` is the app, `app/android` the native shell) |
 
 ## What the app does
 
-- **Errorless tracing.** 26 capital letters plus 4 warm-up strokes (│ — ○ +). The blue ink only moves forward along the right path. If his finger wanders, the ink waits; there are no "wrong" sounds.
-- **One picture per success.** Each finished letter shows one picture (A → Apple). The word appears in big letter tiles, and a voice says "A is for Apple. A, P, P, L, E. Apple!"
-- **Predictable routine.** The start screen shows *First write → Then picture*. Stars show the turns left, and "All done" gives a clear finish.
-- **Picture book.** All 30 earned pictures to collect and revisit.
-- **Grown-ups area.** Opens with a 2-second press and hold. It shows progress per letter and lets you set the practice set, turns per session, tracing room, guide strength, demo, voice, chimes and calm motion. You can also put **your own photos** in as rewards (e.g. T → his toy train).
-- **Private.** Works offline. No ads, no purchases, no accounts, and no data leaves the device.
+- **Numbers 1–9 first.** Capital letters A–Z are built in, and you switch them on in the Grown-ups area when he's ready.
+- **Errorless tracing.** The blue ink only moves forward along the correct path. If the pen wanders, the ink waits; there are no "wrong" sounds. A dot can demonstrate each stroke ("Show me"), and the voice says each number.
+- **One picture per success.** After each turn he sees exactly one picture, with its word in big letter tiles, read out and spelled ("Elephant! E, L, E, P, H, A, N, T"). The 300 everyday pictures come in a shuffled order, and none repeats until all 300 have been seen. There is no picture bank for him to pick from.
+- **Grows with him (7 levels).** Level 1 is one very big number with lots of room to wander. As he masters each level, the room shrinks, the numbers get smaller, and more appear per screen (up to 4). The level moves up after 5 turns averaging 4★, and steps back after 3 turns under 2★. Changes only happen between sessions. You can also fix the level yourself.
+- **Stars per character, for you.** Each try is scored 1–5★ from how closely the pen followed the path (compared with the room at his level), minus a little each time it wandered right off or needed "Show me". The Grown-ups area shows each character's average over the last 5 tries, a trend arrow, "Doing well / Needs practice" lists, his level, and the recent session history.
+- **Made for a stylus.** A palm guard ignores fingers and a resting palm while the pen is in use, and a ring shows where the pen is hovering.
+- **Safe and private.** Full screen, the back button is ignored on his screens, and the Grown-ups area needs a 2-second press on the gear. Works fully offline. No ads, no accounts, and no data leaves the tablet.
 
-## Project layout
+## Install on the Lenovo tablet
 
-```
-app/                    Capacitor app (Android + iOS)
-  www/                  the app itself: index.html, app.css, app.js, letters.js, img/, fonts/
-  android/              native Android project (generated, committed)
-  ios/                  native iOS project (generated, committed)
-  assets/               icon + splash sources
-docs/                   GitHub Pages site: the presentation
-  index.html
-  assets/               deck styles/script, screenshots of the real app, pictures
-```
+1. Copy `docs/download/picture-pen.apk` to the tablet, or download it from the GitHub Pages site.
+2. Open it and allow installs from that source. Android may warn that it's not from the Play Store; tap *Install anyway*.
+3. In Settings, search for **App pinning** and turn it on. Then pin Picture Pen so he stays inside the app.
 
-Letter shapes and reward words live in `app/www/letters.js`. Change a word or picture there.
+This is a debug-signed build. A future build made on another computer may need the old app uninstalled first, which resets his stars. To avoid that, set up one permanent signing key and use it for every build.
 
-## Build the Android app (APK)
+## Build the APK yourself
 
-You need Node 20+, Java 21 and the Android SDK. The easiest way to get the SDK is to install Android Studio, which also asks you to accept the Android SDK licence.
+You need Node 20+, Java 21 and the Android SDK. Android Studio installs the SDK and asks you to accept its licence.
 
 ```bash
 cd app
 npm install
-npx cap sync android
-cd android && ./gradlew assembleDebug
+npm run android:build
 # → app/android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Copy `app-debug.apk` to the tablet, open it, and allow installs from that source.
-Then turn on **App pinning** (Settings → Security → App pinning) so he stays inside the app.
+Pictures and words live in `app/www/rewards.js`, number and letter shapes in `app/www/letters.js`, and levels and scoring at the top of `app/www/app.js`.
+After changing anything in `app/www`, run `npm run android:build` again.
 
-## Build for iPad / iPhone
-
-You need a Mac with Xcode.
-
-```bash
-cd app
-npm install
-npx cap sync ios
-npx cap open ios
-```
-
-In Xcode, sign in with your Apple ID, pick the iPad and press Run. With a free Apple ID the app must be reinstalled every 7 days; TestFlight and the App Store need a paid Apple Developer account.
-Turn on **Guided Access** (Settings → Accessibility → Guided Access) to lock the iPad to the app.
-
-## Quick check in a desktop browser (development only)
-
-```bash
-cd app/www && python3 -m http.server 8000   # open http://localhost:8000
-```
-
-Speech uses the browser's voice here. In the app it uses the tablet's text-to-speech engine.
+To check the screens quickly on a computer: `cd app/www && python3 -m http.server 8000`, then open http://localhost:8000. In a browser, speech uses the browser's own voice.
 
 ## Publish the presentation (GitHub Pages)
 
 Settings → Pages → *Build and deployment* → Source: **Deploy from a branch** → pick this branch and the **`/docs`** folder → Save.
-After a minute the presentation is live at `https://kiaanwankhede.github.io/Kiaan_Writing/`.
+The presentation will be at `https://kiaanwankhede.github.io/Kiaan_Writing/` and the APK at `…/download/picture-pen.apk`.
 
 ## Credits
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Picture Pen</title>
-  <meta name="description" content="A calm, reward-based letter tracing app: write a letter, see one picture and its spelling.">
+  <meta name="description" content="A calm, reward-based writing app: trace a number or letter, see one picture and its spelling.">
   <meta name="theme-color" content="#FBF7F0">
   <link rel="stylesheet" href="app.css">
 </head>
@@ -25,22 +25,19 @@
         <div class="first-then" aria-label="First write, then picture">
           <div class="ft-card">
             <span class="ft-tag">First</span>
-            <img src="img/pencil.svg" alt="">
+            <img src="img/ui/pencil.svg" alt="">
             <span class="ft-word">write</span>
           </div>
           <svg class="ft-arrow" viewBox="0 0 48 24" aria-hidden="true"><path d="M2 12h38M30 3l10 9-10 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <div class="ft-card ft-then">
             <span class="ft-tag">Then</span>
-            <img src="img/picture.svg" alt="">
+            <img src="img/ui/picture.svg" alt="">
             <span class="ft-word">picture</span>
           </div>
         </div>
         <button class="big-btn primary" id="btn-start">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
           <span>Start</span>
-        </button>
-        <button class="soft-btn" id="btn-book">
-          <img src="img/books.svg" alt=""> <span>My picture book</span> <span class="count" id="book-count">0</span>
         </button>
       </main>
     </section>
@@ -97,39 +94,16 @@
     <!-- DONE -------------------------------------------------------------->
     <section class="screen" id="screen-done" data-screen="done" hidden>
       <main class="done-main">
-        <img class="done-badge" src="img/thumbsup.svg" alt="">
+        <img class="done-badge" src="img/ui/thumbsup.svg" alt="">
         <h1>All done!</h1>
-        <p class="done-sub">Look at your pictures</p>
-        <ul class="done-row" id="done-row"></ul>
+        <ol class="stars big" id="done-stars" aria-label="Turns finished"></ol>
         <div class="done-actions">
-          <button class="soft-btn" id="btn-done-book"><img src="img/books.svg" alt=""> <span>Picture book</span></button>
           <button class="big-btn primary" id="btn-done-home">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7v9h-6v-6h-5v6h-6z"/></svg>
             <span>Finish</span>
           </button>
         </div>
       </main>
-    </section>
-
-    <!-- PICTURE BOOK ------------------------------------------------------>
-    <section class="screen" id="screen-book" data-screen="book" hidden>
-      <header class="bar">
-        <button class="icon-btn" id="btn-book-back" aria-label="Back">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H8.8l4.6-4.6L12 5l-7 7 7 7 1.4-1.4L8.8 13H20z"/></svg>
-        </button>
-        <h2 class="bar-title">My picture book</h2>
-        <span class="bar-meta" id="book-meta"></span>
-      </header>
-      <main class="book-main">
-        <ul class="book-grid" id="book-grid"></ul>
-      </main>
-      <div class="viewer" id="viewer" hidden>
-        <button class="viewer-close icon-btn" id="viewer-close" aria-label="Close">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6 10.6 12 5 6.4z"/></svg>
-        </button>
-        <button class="reward-pic" id="viewer-pic" aria-label="Tap to hear it again"><img id="viewer-img" alt=""></button>
-        <div class="tiles" id="viewer-tiles"></div>
-      </div>
     </section>
 
     <!-- PARENT ZONE ------------------------------------------------------->
@@ -141,35 +115,56 @@
       <main class="parent-main">
 
         <section class="panel">
-          <h3>Progress</h3>
-          <div class="stat-row">
-            <div class="stat"><b id="stat-pictures">0</b><span>pictures earned</span></div>
-            <div class="stat"><b id="stat-traces">0</b><span>shapes traced</span></div>
-            <div class="stat"><b id="stat-sessions">0</b><span>sessions finished</span></div>
+          <h3>Stars per character</h3>
+          <p class="hint">Average of his last 5 tries. Stars come from how closely the pen followed the path, how often it wandered off, and how often "Show me" help was needed. ↑ / ↓ shows the recent trend.</p>
+          <div class="perf-summary">
+            <div class="chip-good"><span>Doing well</span><b id="perf-good">–</b></div>
+            <div class="chip-weak"><span>Needs practice</span><b id="perf-weak">–</b></div>
           </div>
-          <p class="hint">Each tile shows how many times a shape has been traced. Darker = more practice.</p>
-          <ul class="progress-grid" id="progress-grid"></ul>
+          <ul class="perf-grid" id="perf-grid"></ul>
+        </section>
+
+        <section class="panel">
+          <h3>Level</h3>
+          <div class="level-head"><b id="level-now">Level 1 of 7</b><span id="level-note"></span></div>
+          <ol class="ladder" id="level-ladder"></ol>
+          <p class="hint" id="level-msg"></p>
+          <div class="field">
+            <span class="label">How the level changes</span>
+            <div class="seg" data-setting="levelMode">
+              <button data-value="auto">Automatic (grows with him)</button>
+              <button data-value="fixed">I choose</button>
+            </div>
+          </div>
+          <div class="field" id="fixed-level-field" hidden>
+            <label for="fixed-level">Level</label>
+            <select id="fixed-level"></select>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>Recent sessions</h3>
+          <table class="sessions"><tbody id="session-rows"></tbody></table>
+          <p class="hint" id="pictures-seen"></p>
         </section>
 
         <section class="panel">
           <h3>What to practise</h3>
           <div class="field">
-            <label for="set-select">Practice set</label>
+            <label for="set-select">Characters</label>
             <select id="set-select"></select>
-          </div>
-          <div class="field" id="custom-field" hidden>
-            <label>Pick shapes</label>
-            <ul class="pick-grid" id="pick-grid"></ul>
+            <small>Start with numbers 1–9. Switch on letters when you are ready.</small>
           </div>
           <div class="field">
             <span class="label">Order</span>
             <div class="seg" data-setting="order">
               <button data-value="sequence">In order</button>
               <button data-value="shuffle">Mixed</button>
+              <button data-value="weak">More of the weak ones</button>
             </div>
           </div>
           <div class="field">
-            <span class="label">Turns per session</span>
+            <span class="label">Turns per session <small>one picture after each turn</small></span>
             <div class="seg" data-setting="turns">
               <button data-value="3">3</button>
               <button data-value="5">5</button>
@@ -179,36 +174,16 @@
         </section>
 
         <section class="panel">
-          <h3>How much help</h3>
+          <h3>Help and senses</h3>
           <div class="field">
-            <span class="label">Tracing room <small>how far the finger may wander</small></span>
-            <div class="seg" data-setting="tolerance">
-              <button data-value="wide">Lots</button>
-              <button data-value="medium">Some</button>
-              <button data-value="narrow">A little</button>
-            </div>
-          </div>
-          <div class="field">
-            <span class="label">Guide <small>fade this as skills grow</small></span>
-            <div class="seg" data-setting="guide">
-              <button data-value="strong">Arrows + dots</button>
-              <button data-value="medium">Dots only</button>
-              <button data-value="light">Faint</button>
-            </div>
-          </div>
-          <div class="field">
-            <span class="label">"Show me" first <small>demo before each letter</small></span>
+            <span class="label">"Show me" demo <small>a dot draws each stroke first, and again if he is stuck</small></span>
             <div class="seg" data-setting="demo">
               <button data-value="on">On</button>
               <button data-value="off">Off</button>
             </div>
           </div>
-        </section>
-
-        <section class="panel">
-          <h3>Senses</h3>
           <div class="field">
-            <span class="label">Voice on the picture</span>
+            <span class="label">Voice</span>
             <div class="seg" data-setting="voice">
               <button data-value="spell">Word + spelling</button>
               <button data-value="word">Word only</button>
@@ -229,33 +204,26 @@
               <button data-value="off">Off</button>
             </div>
           </div>
-        </section>
-
-        <section class="panel">
-          <h3>Personal touches</h3>
           <div class="field">
-            <label for="name-input">Child's name <small>shown on the start screen, stays on this device</small></label>
-            <input id="name-input" type="text" maxlength="24" autocomplete="off" placeholder="e.g. Sam">
+            <span class="label">Stylus palm guard <small>while the pen is in use, fingers and a resting palm are ignored</small></span>
+            <div class="seg" data-setting="palm">
+              <button data-value="on">On</button>
+              <button data-value="off">Off</button>
+            </div>
           </div>
           <div class="field">
-            <span class="label">Use your own photo as a reward <small>a favourite toy, pet or person works well</small></span>
-            <div class="photo-row">
-              <select id="photo-letter" aria-label="Which shape"></select>
-              <input id="photo-word" type="text" maxlength="18" placeholder="Word, e.g. Grandma" aria-label="Word for the photo">
-              <label class="soft-btn file-btn">Choose photo<input id="photo-file" type="file" accept="image/*"></label>
-              <button class="soft-btn" id="photo-clear">Use default</button>
-            </div>
-            <p class="hint" id="photo-status"></p>
+            <label for="name-input">Child's name <small>shown on the start screen, stays on this tablet</small></label>
+            <input id="name-input" type="text" maxlength="24" autocomplete="off" placeholder="e.g. Sam">
           </div>
         </section>
 
         <section class="panel">
           <h3>Reset</h3>
-          <p class="hint">Clears the picture book and practice counts. Settings and photos stay.</p>
+          <p class="hint">Clears stars, level and session history. Settings stay.</p>
           <button class="soft-btn danger" id="btn-reset">Reset progress</button>
         </section>
 
-        <p class="fineprint">Picture Pen · works fully offline · nothing leaves this device.<br>
+        <p class="fineprint">Picture Pen · works offline · nothing leaves this tablet.<br>
           Pictures: Twemoji (jdecked/twemoji), CC BY 4.0. Font: Nunito, SIL Open Font License.</p>
       </main>
     </section>
@@ -263,6 +231,7 @@
   </div>
 
   <script src="letters.js"></script>
+  <script src="rewards.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

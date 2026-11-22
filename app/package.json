@@ -1,21 +1,19 @@
 {
   "name": "picture-pen",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Picture Pen: a calm, reward-based letter tracing app for young autistic learners.",
+  "description": "Picture Pen: a calm, reward-based writing app (numbers and letters) for a young autistic learner.",
   "scripts": {
     "sync": "cap sync",
     "android:build": "cap sync android && cd android && ./gradlew assembleDebug",
-    "android:open": "cap open android",
-    "ios:open": "cap open ios"
+    "android:open": "cap open android"
   },
   "license": "MIT",
   "dependencies": {
     "@capacitor-community/text-to-speech": "^8.0.2",
     "@capacitor/android": "^8.6.2",
     "@capacitor/app": "^8.1.2",
-    "@capacitor/core": "^8.6.2",
-    "@capacitor/ios": "^8.6.2"
+    "@capacitor/core": "^8.6.2"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.6.2",

@@ -1,5 +1,5 @@
 /*
- * Picture Pen — letter geometry and reward pictures.
+ * Picture Pen — shapes of the numbers 1–9 and capital letters A–Z.
  *
  * Every shape lives in a 100 x 100 box (y grows downward).
  * Capital letters sit between the top line (y = 10) and the baseline (y = 90).
@@ -39,11 +39,16 @@
   var circle = function (cx, cy, r) { return arc(cx, cy, r, r, -90, -450); }; // starts at top, goes anticlockwise
 
   var SHAPES = {
-    // Pre-writing strokes (the developmental warm-ups)
-    'line-down':   { label: 'Line down',   strokes: [[[50, 10], [50, 90]]] },
-    'line-across': { label: 'Line across', strokes: [[[15, 50], [85, 50]]] },
-    'circle':      { label: 'Circle',      strokes: [arc(50, 50, 38, 38, -90, -450)] },
-    'cross':       { label: 'Cross',       strokes: [[[50, 12], [50, 88]], [[12, 50], [88, 50]]] },
+    // Numbers 1–9 (taught first). Stroke order follows common school practice.
+    '1': { strokes: [[[34, 26], [50, 10], [50, 90]]] },
+    '2': { strokes: [path(arc(50, 32, 22, 22, 200, 400), [[25, 90], [76, 90]])] },
+    '3': { strokes: [path(arc(48, 30, 22, 20, 205, 450), arc(48, 70, 24, 20, -90, 150))] },
+    '4': { strokes: [[[60, 10], [20, 64], [82, 64]], [[62, 10], [62, 90]]] },
+    '5': { strokes: [path([[32, 10], [31, 49]], arc(48, 66, 24, 24, -135, 150)), [[32, 10], [72, 10]]] },
+    '6': { strokes: [path(arc(64, 68, 36, 56, -88, -180), arc(50, 68, 22, 22, 180, -170))] },
+    '7': { strokes: [[[24, 10], [76, 10], [40, 90]]] },
+    '8': { strokes: [path(arc(50, 30, 20, 19, -30, -270), arc(50, 69, 22, 21, -90, 270), arc(50, 30, 20, 19, 90, -30))] },
+    '9': { strokes: [path(arc(48, 32, 21, 21, 0, -360), [[69, 32], [67, 90]])] },
 
     // Capital letters
     A: { strokes: [[[50, 10], [20, 90]], [[50, 10], [80, 90]], [[31, 60], [69, 60]]] },
@@ -88,48 +93,13 @@
     Z: { strokes: [[[22, 10], [78, 10], [22, 90], [78, 90]]] }
   };
 
-  // One picture per shape. `img` is a file in ../assets/img/.
-  var REWARDS = {
-    'line-down':   { word: 'Rain',  img: 'rain' },
-    'line-across': { word: 'Snake', img: 'snake' },
-    'circle':      { word: 'Ball',  img: 'ball' },
-    'cross':       { word: 'Plane', img: 'plane' },
-    A: { word: 'Apple',     img: 'apple' },
-    B: { word: 'Bus',       img: 'bus' },
-    C: { word: 'Cat',       img: 'cat' },
-    D: { word: 'Dog',       img: 'dog' },
-    E: { word: 'Egg',       img: 'egg' },
-    F: { word: 'Fish',      img: 'fish' },
-    G: { word: 'Grapes',    img: 'grapes' },
-    H: { word: 'House',     img: 'house' },
-    I: { word: 'Ice cream', img: 'icecream' },
-    J: { word: 'Juice',     img: 'juice' },
-    K: { word: 'Kite',      img: 'kite' },
-    L: { word: 'Lion',      img: 'lion' },
-    M: { word: 'Monkey',    img: 'monkey' },
-    N: { word: 'Nest',      img: 'nest' },
-    O: { word: 'Owl',       img: 'owl' },
-    P: { word: 'Pig',       img: 'pig' },
-    Q: { word: 'Queen',     img: 'queen' },
-    R: { word: 'Rocket',    img: 'rocket' },
-    S: { word: 'Sun',       img: 'sun' },
-    T: { word: 'Train',     img: 'train' },
-    U: { word: 'Umbrella',  img: 'umbrella' },
-    V: { word: 'Van',       img: 'van' },
-    W: { word: 'Whale',     img: 'whale' },
-    X: { word: 'X-ray',     img: 'xray' },
-    Y: { word: 'Yo-yo',     img: 'yoyo' },
-    Z: { word: 'Zebra',     img: 'zebra' }
-  };
+  var NAMES = { '1': 'one', '2': 'two', '3': 'three', '4': 'four', '5': 'five', '6': 'six', '7': 'seven', '8': 'eight', '9': 'nine' };
 
   var SETS = {
-    strokes:  { label: 'Warm-up strokes',          keys: ['line-down', 'line-across', 'circle', 'cross'] },
-    straight: { label: 'Straight-line letters',    keys: ['L', 'T', 'I', 'H', 'E', 'F'] },
-    slanted:  { label: 'Slanty letters',           keys: ['V', 'X', 'A', 'Z', 'N', 'M', 'K', 'Y', 'W'] },
-    curvy:    { label: 'Curvy letters',            keys: ['C', 'O', 'Q', 'G', 'S', 'U', 'J', 'D', 'P', 'B', 'R'] },
-    all:      { label: 'All letters A–Z',          keys: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') },
-    custom:   { label: 'My own choice',            keys: [] }
+    numbers: { label: 'Numbers 1–9',          keys: '123456789'.split('') },
+    letters: { label: 'Capital letters A–Z',   keys: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') },
+    both:    { label: 'Numbers and letters',   keys: '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') }
   };
 
-  global.PP_DATA = { SHAPES: SHAPES, REWARDS: REWARDS, SETS: SETS };
+  global.PP_DATA = { SHAPES: SHAPES, SETS: SETS, NAMES: NAMES };
 })(window);
