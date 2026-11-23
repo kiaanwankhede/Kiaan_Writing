@@ -1,4 +1,4 @@
-/* Picture Pen deck: scale-to-fit, keyboard / click / swipe navigation, #slide links. */
+/* Learn2Write deck: scale-to-fit, keyboard / click / swipe navigation, #slide links. */
 (function () {
   'use strict';
   var deck = document.querySelector('.deck');
@@ -10,7 +10,7 @@
   slides.forEach(function (s, n) {
     var foot = document.createElement('div');
     foot.className = 'slide-foot';
-    foot.innerHTML = '<span>Picture Pen · research, design &amp; app plan</span><span class="page">' + (n + 1) + ' / ' + slides.length + '</span>';
+    foot.innerHTML = '<span>Learn2Write · research, design &amp; app plan</span><span class="page">' + (n + 1) + ' / ' + slides.length + '</span>';
     s.appendChild(foot);
   });
 

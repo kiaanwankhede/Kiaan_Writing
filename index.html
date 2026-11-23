@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Picture Pen</title>
-  <meta name="description" content="Research, design and app plan for Picture Pen: a calm, reward-based writing app for a young autistic learner on an Android tablet with a stylus. Write a number, see one picture and its spelling.">
+  <title>Learn2Write</title>
+  <meta name="description" content="Research, design and app plan for Learn2Write: a calm, reward-based writing app for a young autistic learner on an Android tablet with a stylus. Write a number, see one picture and its spelling.">
   <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +21,7 @@
 <section class="slide title-slide">
   <div class="row" style="height:100%; align-items:center; gap:36px">
     <div class="col" style="flex:0 0 540px">
-      <div class="brand"><img src="assets/icon.svg" alt=""> Picture Pen</div>
+      <div class="brand"><img src="assets/icon.svg" alt=""> Learn2Write</div>
       <h1 style="font-size:64px">Write a number.<br><span>See a picture.</span></h1>
       <p class="lead" style="margin-top:22px; font-size:24px">A calm, reward-based writing app for a 4-year-old autistic learner who loves pictures. Built for an Android tablet and stylus.</p>
       <div class="badge-row" style="margin-top:26px">
@@ -300,12 +300,33 @@
       <p class="cap"><b>Level 6</b>Three smaller numbers, tight path, faint guide only.</p>
     </div>
   </div>
-  <p style="margin-top:22px; font-size:18px"><b>Automatic:</b> he moves up a level after 5 turns averaging 4★, and steps back after 3 turns under 2★, so it stays fun. Changes only happen <b>between sessions</b>, never mid-practice. You can also fix the level yourself.</p>
+  <p style="margin-top:22px; font-size:18px"><b>Automatic:</b> he moves up a level after 5 turns averaging 4★, and steps back after 3 turns under 2★, so it stays fun. Changes only happen <b>between sessions</b>, never mid-practice. After Level 7 come <b>Levels 8–9: free writing</b> (next slide).</p>
+</section>
+
+<!-- 11b · FREE WRITING =================================================== -->
+<section class="slide">
+  <p class="kicker">Mock screen 4 · Free writing (Levels 8–9)</p>
+  <h2>No path any more: he copies the model, like on paper</h2>
+  <div class="trio">
+    <div>
+      <div class="device tablet"><img src="assets/screens/free-l8.png" alt="Level 8: writing a 3 freely next to a model, in pencil-grey ink"></div>
+      <p class="cap"><b>Level 8 · copy the model</b>Model on the left, writing lines and a start dot. Pencil-look ink, darker when he presses harder.</p>
+    </div>
+    <div>
+      <div class="device tablet"><img src="assets/screens/free-assist.png" alt="A 7 written instead of a 5: the path appears with 'Let's trace it together'"></div>
+      <p class="cap"><b>Not recognised? Trace it together</b>The path appears over his attempt, so the turn still ends in success. It counts as help in his stars.</p>
+    </div>
+    <div>
+      <div class="device tablet"><img src="assets/screens/free-l9.png" alt="Level 9: three numbers written at school-paper size"></div>
+      <p class="cap"><b>Level 9 · school-paper size</b>Three numbers per screen, about 2 cm tall, model only.</p>
+    </div>
+  </div>
+  <p style="margin-top:20px; font-size:17px">When he pauses, the app compares his shape with every number (the <b>$P point-cloud recognizer</b>). Accepted when his number is the closest match. Size and staying between the lines add to his stars.</p>
 </section>
 
 <!-- 12 · SCREEN: REWARD ================================================== -->
 <section class="slide">
-  <p class="kicker">Mock screen 4 · Reward</p>
+  <p class="kicker">Mock screen 5 · Reward</p>
   <h2>Reward: one picture, its spelling, and a star</h2>
   <div class="row" style="gap:34px; align-items:flex-start">
     <div class="device tablet" style="flex:0 0 680px">
@@ -362,7 +383,7 @@
 
 <!-- 14 · DONE ============================================================ -->
 <section class="slide">
-  <p class="kicker">Mock screen 5 · All done</p>
+  <p class="kicker">Mock screen 6 · All done</p>
   <h2>A clear, calm ending</h2>
   <div class="row" style="gap:34px; align-items:center">
     <div class="device tablet" style="flex:0 0 640px"><img src="assets/screens/done.png" alt="All done screen with a thumbs up, a full row of stars and a Finish button"></div>
@@ -379,7 +400,7 @@
 
 <!-- 15 · GROWN-UPS: STARS ================================================ -->
 <section class="slide">
-  <p class="kicker">Mock screen 6 · Grown-ups</p>
+  <p class="kicker">Mock screen 7 · Grown-ups</p>
   <h2>Stars per character: where he's doing well, where he needs practice</h2>
   <div class="row" style="gap:30px; align-items:flex-start">
     <div class="device tablet" style="flex:0 0 640px">
@@ -403,14 +424,15 @@
 
 <!-- 16 · GROWN-UPS: LEVEL & HISTORY ====================================== -->
 <section class="slide">
-  <p class="kicker">Mock screen 7 · Grown-ups</p>
-  <h2>Level, history and settings</h2>
+  <p class="kicker">Mock screen 8 · Grown-ups</p>
+  <h2>Level, pressure, history and settings</h2>
   <div class="row" style="gap:30px; align-items:flex-start">
-    <div class="device tablet" style="flex:0 0 640px"><img src="assets/screens/parent-level.png" alt="Grown-ups area: level ladder from 1 to 7 and a list of recent sessions with stars"></div>
+    <div class="device tablet" style="flex:0 0 640px"><img src="assets/screens/parent-level.png" alt="Grown-ups area: level ladder from 1 to 9, with Level 8 free writing selected"></div>
     <div class="col">
       <ul class="clean check">
-        <li><b>Level ladder 1–7</b> with what each level means, and how close he is to the next one.</li>
+        <li><b>Level ladder 1–9</b> (8–9 are free writing), with what each level means and how close he is to the next one.</li>
         <li><b>Automatic or "I choose"</b>: let it grow with him, or fix a level.</li>
+        <li><b>Pen pressure</b>: light, comfortable or pressing hard, overall and per number.</li>
         <li><b>Recent sessions</b>: date, level, turns and average stars.</li>
         <li><b>What to practise</b>: numbers 1–9 (default), letters A–Z, or both. In order, mixed, or <i>more of the weak ones</i>.</li>
         <li><b>Help &amp; senses</b>: "Show me" demo, voice, chimes, calm motion, stylus palm guard.</li>
@@ -419,10 +441,29 @@
   </div>
 </section>
 
+<!-- 16b · PAPER PRACTICE ================================================ -->
+<section class="slide">
+  <p class="kicker">Mock screen 9 · Paper practice</p>
+  <h2>Print a sheet, write on paper, get the same one picture</h2>
+  <div class="row" style="gap:30px; align-items:flex-start">
+    <div style="flex:0 0 330px; background:#fff; border-radius:6px; box-shadow:0 14px 34px rgba(31,42,68,.18); padding:10px"><img src="assets/screens/sheet.png" alt="Printed A4 practice sheet: each row has a model number, two dotted copies with green start dots, and three empty boxes on writing lines" style="width:100%; display:block"></div>
+    <div class="device tablet" style="flex:0 0 470px"><img src="assets/screens/parent-paper.png" alt="Grown-ups area: paper practice panel with print button, numbers 4 and 8 selected, 4 stars and a Show his picture button"></div>
+    <div class="col">
+      <ul class="clean check">
+        <li><b>Practice sheet</b> of his 6 weakest numbers (or the whole set): model, 2 dotted copies, 3 empty boxes.</li>
+        <li><b>Print or Save as PDF</b> from the tablet.</li>
+        <li><b>Done on paper</b>: tap what he wrote and, if you like, rate how it looked.</li>
+        <li><b>Show his picture</b>: one picture, exactly as on the tablet.</li>
+        <li>Paper ratings appear next to his tablet stars.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 <!-- 17 · LEARNING PATH =================================================== -->
 <section class="slide">
   <p class="kicker">Learning path</p>
-  <h2>Numbers first, then letters, each through 7 levels</h2>
+  <h2>Numbers first, then letters, each through 9 levels</h2>
   <div class="row" style="gap:28px">
     <div class="col" style="flex:0 0 380px; display:grid; gap:12px; align-content:start">
       <div class="level" style="box-shadow:inset 0 0 0 3px var(--teal)"><div class="lv">Stage 1 · now</div><h3>Numbers</h3><div class="glyphs" style="min-height:0">1 2 3 4 5 6 7 8 9</div></div>
@@ -440,9 +481,11 @@
           <tr><td>5</td><td>3</td><td>Medium</td><td>Less</td><td>Dots only</td></tr>
           <tr><td>6</td><td>3</td><td>Smaller</td><td>Little</td><td>Faint</td></tr>
           <tr><td>7</td><td>4</td><td>Small</td><td>Tight</td><td>Faint</td></tr>
+          <tr><td>8</td><td>1</td><td>Big</td><td>No path</td><td>Model + start dot</td></tr>
+          <tr><td>9</td><td>3</td><td>School paper</td><td>No path</td><td>Model only</td></tr>
         </tbody>
       </table>
-      <p class="small muted" style="margin-top:10px">Room to wander goes from 18 to 6 hundredths of the character's height. "Show me" stays available at every level.</p>
+      <p class="small muted" style="margin-top:8px">Room to wander goes from 18 to 6 hundredths of the character's height. Levels 8–9 are free writing. "Show me" stays available at every level.</p>
     </div>
   </div>
 </section>
@@ -454,11 +497,11 @@
   <div class="row" style="gap:30px">
     <div class="col arch">
       <div class="layer native"><h3>Android app shell <small>Capacitor 8 · APK · Android 7 and newer</small></h3>
-        <div class="boxes"><div class="box"><b>Full screen</b>No status or nav bars; screen stays on</div><div class="box"><b>Back button</b>Ignored on his screens</div><div class="box"><b>Text-to-speech</b>The tablet's own voice</div></div></div>
+        <div class="boxes"><div class="box"><b>Full screen</b>No status or nav bars; screen stays on</div><div class="box"><b>Back button</b>Ignored on his screens</div><div class="box"><b>Text-to-speech</b>The tablet's own voice</div><div class="box"><b>Printing</b>Printer or Save as PDF</div></div></div>
       <div class="layer ui"><h3>Screens <small>HTML · CSS · JavaScript</small></h3>
         <div class="boxes"><div class="box"><b>Child</b>Start · Trace · Reward · All done</div><div class="box"><b>Grown-ups</b>Stars · Level · History · Settings</div></div></div>
       <div class="layer engine"><h3>Engines <small>no extra libraries</small></h3>
-        <div class="boxes"><div class="box"><b>Tracing + stylus</b>Pen detection, palm guard, hover ring</div><div class="box"><b>Mastery</b>7 levels, scoring, level-up rules</div><div class="box"><b>Rewards</b>300 pictures, shuffled deck, voice</div></div></div>
+        <div class="boxes"><div class="box"><b>Tracing + stylus</b>Palm guard, pressure, hover ring</div><div class="box"><b>Shape check</b>$P recognizer for free writing</div><div class="box"><b>Mastery</b>9 levels, scoring, level-up rules</div><div class="box"><b>Rewards</b>300 pictures, shuffled deck, voice</div></div></div>
       <div class="layer store"><h3>On the tablet only <small>no server, no account</small></h3>
         <div class="boxes"><div class="box"><b>Settings, stars, level, history</b>Local storage</div><div class="box"><b>Pictures &amp; font</b>Bundled inside the app</div></div></div>
     </div>
@@ -516,7 +559,7 @@
         <li><b>Order and direction for free</b>Progress only goes forward, so stroke order and direction are always right.</li>
         <li><b>Wandering = pause</b>Too far away and the ink waits (counted for the stars). Coming back to the dot picks it up again.</li>
       </ol>
-      <p class="small muted" style="margin-top:14px">Other apps use pixel masks ("colour inside the letter") or per-stroke paths with checkpoints. Per-stroke paths are what make demos, arrows and stroke order possible.</p>
+      <p class="small muted" style="margin-top:14px">Other apps use pixel masks ("colour inside the letter") or per-stroke paths with checkpoints. Per-stroke paths are what make demos, arrows and stroke order possible. In free writing (Levels 8–9) the shape is checked separately, with the $P point-cloud recognizer.</p>
     </div>
   </div>
 </section>
@@ -527,24 +570,24 @@
   <h2>What exists today, and what comes next</h2>
   <div class="grid-3">
     <div class="card" style="box-shadow:inset 0 0 0 3px var(--teal), 0 8px 22px rgba(31,42,68,.06)">
-      <span class="pill">Built · v0.3</span>
+      <span class="pill">Built · v0.4</span>
       <ul class="clean check" style="margin-top:14px">
         <li>Numbers 1–9 (letters A–Z ready)</li>
-        <li>7 mastery levels, automatic</li>
-        <li>Stylus palm guard and pen pressure</li>
+        <li>9 levels, ending in free writing</li>
+        <li>Palm guard, pressure, pencil-look ink</li>
         <li>300 pictures, one per success</li>
-        <li>Stars per character and session history</li>
-        <li>Android APK for the Lenovo tablet</li>
+        <li>Stars per character, history</li>
+        <li>Printable sheets + Done on paper</li>
       </ul>
     </div>
     <div class="card">
-      <span class="pill ink">Next · v0.4</span>
+      <span class="pill ink">Next · v0.5</span>
       <ul class="clean dash" style="margin-top:14px">
-        <li>Free-write and paper-size levels</li>
-        <li>Pencil-look ink that darkens with pressure</li>
-        <li>Printable sheets + "paper turns"</li>
         <li>Write his name</li>
+        <li>Number 0 and lowercase letters</li>
         <li>A parent's recorded voice for the words</li>
+        <li>Weekly progress summary to share</li>
+        <li>One permanent signing key for updates</li>
       </ul>
     </div>
     <div class="card">
@@ -552,7 +595,6 @@
       <ul class="clean dash" style="margin-top:14px">
         <li>Short words: trace C-A-T → cat</li>
         <li>Counting: trace 3, see 3 apples</li>
-        <li>Printable worksheets of weak characters</li>
         <li>Review with his OT or speech therapist</li>
       </ul>
     </div>
@@ -569,8 +611,8 @@
   <h2>From tablet to pencil and paper, one small step at a time</h2>
   <div class="levels" style="grid-template-columns:repeat(4, 1fr)">
     <div class="level" style="box-shadow:inset 0 0 0 3px var(--teal)"><div class="lv">Now · built</div><h3>Trace with a stylus</h3><p>Holding a pen, not a finger. Guides fade and characters shrink as he masters each level.</p><p><b>Pen pressure</b> is measured with an active pen (like the Lenovo Tab Pen) and shown to you as light, comfortable or pressing hard.</p></div>
-    <div class="level next"><div class="lv">Next · v0.4</div><h3>Write without a path</h3><p><b>Free-write levels:</b> only the writing lines and a start dot. The app checks the shape afterwards.</p><p><b>Paper-size level:</b> characters as big as school lines. <b>Pencil-look ink</b> that darkens with pressure.</p></div>
-    <div class="level next"><div class="lv">Next · v0.4</div><h3>Paper turns</h3><p><b>Printable sheets</b> of his weak characters: dotted to trace, then blank.</p><p>When he writes one on paper, you tap <b>"Done on paper"</b> and he gets his one picture, just like on the tablet.</p></div>
+    <div class="level" style="box-shadow:inset 0 0 0 3px var(--teal)"><div class="lv">Now · built</div><h3>Write without a path</h3><p><b>Free-writing levels 8–9:</b> only the writing lines and a model to copy. The app checks the shape afterwards.</p><p><b>Paper-size level:</b> characters as big as school lines. <b>Pencil-look ink</b> that darkens with pressure.</p></div>
+    <div class="level" style="box-shadow:inset 0 0 0 3px var(--teal)"><div class="lv">Now · built</div><h3>Paper turns</h3><p><b>Printable sheets</b> of his weak characters: dotted to trace, then blank.</p><p>When he writes one on paper, you tap <b>"Done on paper"</b> and he gets his one picture, just like on the tablet.</p></div>
     <div class="level next"><div class="lv">Alongside</div><h3>Real pencil, real hands</h3><p>A short, chunky or triangular pencil is easier to grip. Start with "tablet first, then one paper turn".</p><p>His OT can check grip and pressure; the stars and pressure panel give them data.</p></div>
   </div>
   <p style="margin-top:20px; font-size:18px">The same routine and the same reward on tablet and paper, so moving to paper feels familiar rather than new.</p>
@@ -584,16 +626,16 @@
     <div class="card">
       <h3>Install</h3>
       <ol class="legend" style="margin-top:14px; gap:10px">
-        <li><b>Get the file</b>Download <code>picture-pen.apk</code> on the tablet (<a href="download/picture-pen.apk">download link</a>).</li>
+        <li><b>Get the file</b>Download <code>learn2write.apk</code> on the tablet (<a href="download/learn2write.apk">download link</a>). It installs over the earlier Picture Pen version and keeps his stars.</li>
         <li><b>Allow the install</b>Open it and allow installs from this source. Android may warn that it's not from the Play Store: tap <i>Install anyway</i>.</li>
-        <li><b>Open Picture Pen</b>It starts on Numbers 1–9, Level 1.</li>
+        <li><b>Open Learn2Write</b>It starts on Numbers 1–9, Level 1.</li>
       </ol>
     </div>
     <div class="card">
       <h3>Set up for him</h3>
       <ol class="legend" style="margin-top:14px; gap:10px">
         <li><b>Pair the stylus</b>The palm guard turns on by itself once the pen touches the screen.</li>
-        <li><b>Turn on App pinning</b>In Settings, search for "App pinning" and turn it on. Then pin Picture Pen from the recent-apps screen.</li>
+        <li><b>Turn on App pinning</b>In Settings, search for "App pinning" and turn it on. Then pin Learn2Write from the recent-apps screen.</li>
         <li><b>Check the Grown-ups area</b>Press and hold the gear for 2 seconds. Set the turns and voice to suit him.</li>
       </ol>
     </div>
@@ -635,6 +677,7 @@
       <li><a href="https://pubmed.ncbi.nlm.nih.gov/19901244/">Children with autism show specific handwriting impairments (2009)</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/23816627/">Macrographia in ASD (2013)</a></li>
       <li><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11523717/">Handwriting in ASD: literature review</a></li>
       <li><a href="https://www.yorkhospitals.nhs.uk/seecmsfile/?id=2236">York NHS OT: pre-writing skills</a> · <a href="https://www.somersetft.nhs.uk/children-and-young-peoples-therapy-service/pre-writing-activities/">Somerset NHS: pre-writing activities</a> · <a href="https://www.growinghandsonkids.com/basics-pre-writing-activities-skills-kids">Growing Hands-On Kids</a></li>
+      <li><a href="https://depts.washington.edu/acelab/proj/dollar/pdollar.html">$P point-cloud recognizer (Vatavu, Anthony &amp; Wobbrock, 2012)</a></li>
       <li><a href="https://dmccreary.github.io/reading-for-kindergarten/sims/letter-tracing">Letter-tracing simulation (checkpoints)</a> · <a href="https://github.com/Shopify/react-native-skia/discussions/2184">React Native Skia: tracing letters discussion</a></li>
     </ul>
     <p class="tiny muted">Pictures: <a href="https://github.com/jdecked/twemoji">Twemoji</a> (CC BY 4.0). Fonts: Nunito and Nunito Sans (SIL OFL). App store details and prices change often; check current listings.</p>
