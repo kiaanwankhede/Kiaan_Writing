@@ -55,10 +55,16 @@ After changing anything in `app/www`, run `npm run android:build` again.
 
 To check the screens quickly on a computer: `cd app/www && python3 -m http.server 8000`, then open http://localhost:8000. In a browser, speech uses the browser's own voice.
 
-## Publish the presentation (GitHub Pages)
+## Presentation website (GitHub Pages)
 
-Settings → Pages → *Build and deployment* → Source: **Deploy from a branch** → pick this branch and the **`/docs`** folder → Save.
-The presentation will be at `https://kiaanwankhede.github.io/Kiaan_Writing/` and the APK at `…/download/learn2write.apk`.
+Live at **https://kiaanwankhede.github.io/Kiaan_Writing/**, with the Android app at
+**https://kiaanwankhede.github.io/Kiaan_Writing/download/learn2write.apk**.
+
+The site is served from the `gh-pages` branch, which is a copy of the `docs/` folder. After changing anything in `docs/`, commit it and publish with:
+
+```bash
+git subtree push --prefix docs origin gh-pages
+```
 
 ## Credits
 
