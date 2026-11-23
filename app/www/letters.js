@@ -1,5 +1,5 @@
 /*
- * Picture Pen — shapes of the numbers 1–9 and capital letters A–Z.
+ * Learn2Write — shapes of the numbers 1–9 and capital letters A–Z.
  *
  * Every shape lives in a 100 x 100 box (y grows downward).
  * Capital letters sit between the top line (y = 10) and the baseline (y = 90).
