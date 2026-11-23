@@ -275,7 +275,7 @@ select, input[type="text"] {
 .level-head { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; margin-bottom: 10px; }
 .level-head b { font-size: 24px; font-weight: 900; }
 .level-head span { color: var(--muted); font-size: 16px; }
-.ladder { list-style: none; margin: 0 0 10px; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.ladder { list-style: none; margin: 0 0 10px; padding: 0; display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
 .ladder li { border-radius: 12px; padding: 6px 0; text-align: center; background: var(--bg); border: 2px solid var(--line); display: grid; }
 .ladder li b { font-size: 18px; font-weight: 900; }
 .ladder li span { font-size: 12px; color: var(--muted); }
@@ -301,6 +301,14 @@ table.sessions td.muted { color: var(--muted); }
 .pres-grid li.lo span i { background: #D9A400; }
 .pres-grid li.hi span i { background: var(--danger); }
 .pres-grid small { font-size: 13px; color: var(--muted); text-align: right; font-weight: 800; }
+.pick-grid button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.rate { display: flex; gap: 6px; margin: 4px 0 6px; }
+.rate button { width: 46px; height: 46px; border-radius: 12px; border: 2px solid var(--line-strong); background: #fff; display: grid; place-items: center; padding: 0; }
+.rate button i { width: 26px; height: 26px; display: block; background: #E2D9C9;
+  -webkit-mask: url(img/ui/star-mask.svg) center / contain no-repeat; mask: url(img/ui/star-mask.svg) center / contain no-repeat; }
+.rate button.on i { background: var(--star); }
+.soft-btn.primary-soft { background: var(--primary); border-color: var(--primary); color: #fff; }
+#print-sheet { display: none; }
 .fineprint { color: var(--muted); font-size: 14px; text-align: center; margin: 8px 0 0; }
 .fineprint a { color: inherit; }
 
@@ -312,4 +320,19 @@ table.sessions td.muted { color: var(--muted); }
   .stars li { width: 36px; height: 36px; }
   .stars li img { width: 28px; height: 28px; }
   .stat-row { grid-template-columns: 1fr; }
+}
+
+/* ---------- Printable practice sheet (A4) ---------- */
+@media print {
+  @page { size: A4 portrait; margin: 12mm; }
+  html, body { height: auto; background: #fff; }
+  #app { display: none !important; }
+  #print-sheet { display: block !important; color: #1F2A44; font-family: var(--font); }
+  .sheet-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1.5pt solid #D8CFBF; padding-bottom: 3mm; margin-bottom: 4mm; }
+  .sheet-head h1 { font-size: 18pt; margin: 0; }
+  .sheet-head span { font-size: 10pt; color: #6E6A63; }
+  .sheet-name { font-size: 12pt; margin: 0 0 4mm; }
+  .sheet-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2mm; margin-bottom: 3.5mm; break-inside: avoid; }
+  .sheet-row svg { width: 100%; height: auto; display: block; }
+  .sheet-foot { font-size: 9.5pt; color: #6E6A63; margin-top: 3mm; }
 }

@@ -1,6 +1,6 @@
 {
   "appId": "com.picturepen.app",
-  "appName": "Picture Pen",
+  "appName": "Learn2Write",
   "webDir": "www",
   "android": {
     "backgroundColor": "#FBF7F0"

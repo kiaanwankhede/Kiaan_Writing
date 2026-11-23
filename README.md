@@ -1,4 +1,4 @@
-# Picture Pen
+# Learn2Write
 
 A calm, reward-based writing app for a young autistic learner who loves pictures.
 Built as an **Android app for a Lenovo tablet with a stylus**.
@@ -7,7 +7,7 @@ Built as an **Android app for a Lenovo tablet with a stylus**.
 
 | | |
 |---|---|
-| **Android app (APK)** | `docs/download/picture-pen.apk` |
+| **Android app (APK)** | `docs/download/learn2write.apk` |
 | **Presentation** (research, design, mock screens, plan) | `docs/index.html`, published with GitHub Pages |
 | **App source** | `app/` (Capacitor project: `app/www` is the app, `app/android` the native shell) |
 
@@ -16,24 +16,26 @@ Built as an **Android app for a Lenovo tablet with a stylus**.
 - **Numbers 1–9 first.** Capital letters A–Z are built in, and you switch them on in the Grown-ups area when he's ready.
 - **Errorless tracing.** The blue ink only moves forward along the correct path. If the pen wanders, the ink waits; there are no "wrong" sounds. A dot can demonstrate each stroke ("Show me"), and the voice says each number.
 - **One picture per success.** After each turn he sees exactly one picture, with its word in big letter tiles, read out and spelled ("Elephant! E, L, E, P, H, A, N, T"). The 300 everyday pictures come in a shuffled order, and none repeats until all 300 have been seen. There is no picture bank for him to pick from.
-- **Grows with him (7 levels).** Level 1 is one very big number with lots of room to wander. As he masters each level, the room shrinks, the numbers get smaller, and more appear per screen (up to 4). The level moves up after 5 turns averaging 4★, and steps back after 3 turns under 2★. Changes only happen between sessions. You can also fix the level yourself.
+- **Grows with him (9 levels).** Level 1 is one very big number with lots of room to wander. As he masters each level, the room shrinks, the numbers get smaller, and more appear per screen (up to 4). The level moves up after 5 turns averaging 4★, and steps back after 3 turns under 2★. Changes only happen between sessions. You can also fix the level yourself.
+- **Free writing (Levels 8–9).** No path: he copies a model shown on the left, on writing lines, in pencil-look ink that darkens with pen pressure. When he pauses, the app checks the shape with the $P point-cloud recognizer. If it isn't recognised, the path appears and they trace it together, so the turn still ends in success (counted as help in his stars). Level 9 is three numbers per screen at about school-paper size.
 - **Stars per character, for you.** Each try is scored 1–5★ from how closely the pen followed the path (compared with the room at his level), minus a little each time it wandered right off or needed "Show me". The Grown-ups area shows each character's average over the last 5 tries, a trend arrow, "Doing well / Needs practice" lists, his level, and the recent session history.
 - **Made for a stylus.** A palm guard ignores fingers and a resting palm while the pen is in use, and a ring shows where the pen is hovering.
 - **Pen pressure.** With an active pen (one that pairs with the tablet, such as the Lenovo Tab Pen), the app records how hard he presses. The Grown-ups area shows it as light, comfortable or pressing hard, overall and per character. A plain rubber-tip stylus can't sense pressure, and the app says so.
+- **Paper practice.** Print a sheet (or save it as a PDF) of his weakest numbers: a model, two dotted copies with start dots, and three empty boxes per row. When he writes on paper, tap **Done on paper** in the Grown-ups area, optionally rate how it looked, and he gets his one picture, just like on the tablet. Paper ratings show next to his tablet stars.
 - **Safe and private.** Full screen, the back button is ignored on his screens, and the Grown-ups area needs a 2-second press on the gear. Works fully offline. No ads, no accounts, and no data leaves the tablet.
 
 ## Road to pencil and paper
 
-1. **Now:** tracing with a stylus; guides fade and characters shrink as he masters each level; pen pressure is measured.
-2. **Next (v0.4):** free-write levels with no path, a paper-size level, and pencil-look ink that darkens with pressure.
-3. **Paper turns:** printable sheets of his weak characters. When he writes one on paper, a grown-up taps "Done on paper" and he gets his one picture, the same as on the tablet.
+1. **Tracing with a stylus** (Levels 1–7): guides fade and characters shrink as he masters each level, and pen pressure is measured.
+2. **Free writing** (Levels 8–9): copy a model with no path, in pencil-look ink, ending at school-paper size.
+3. **Paper turns:** printable sheets of his weakest characters. When he writes one on paper, a grown-up taps "Done on paper" and he gets his one picture, the same as on the tablet.
 4. **Alongside:** a short, chunky or triangular pencil, and his OT checking grip and pressure.
 
 ## Install on the Lenovo tablet
 
-1. Copy `docs/download/picture-pen.apk` to the tablet, or download it from the GitHub Pages site.
+1. Copy `docs/download/learn2write.apk` to the tablet, or download it from the GitHub Pages site. It installs over the earlier "Picture Pen" version and keeps his stars.
 2. Open it and allow installs from that source. Android may warn that it's not from the Play Store; tap *Install anyway*.
-3. In Settings, search for **App pinning** and turn it on. Then pin Picture Pen so he stays inside the app.
+3. In Settings, search for **App pinning** and turn it on. Then pin Learn2Write so he stays inside the app.
 
 This is a debug-signed build. A future build made on another computer may need the old app uninstalled first, which resets his stars. To avoid that, set up one permanent signing key and use it for every build.
 
@@ -48,7 +50,7 @@ npm run android:build
 # → app/android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Pictures and words live in `app/www/rewards.js`, number and letter shapes in `app/www/letters.js`, and levels and scoring at the top of `app/www/app.js`.
+Pictures and words live in `app/www/rewards.js`, number and letter shapes in `app/www/letters.js`, and levels, scoring and the shape check in `app/www/app.js`.
 After changing anything in `app/www`, run `npm run android:build` again.
 
 To check the screens quickly on a computer: `cd app/www && python3 -m http.server 8000`, then open http://localhost:8000. In a browser, speech uses the browser's own voice.
@@ -56,7 +58,7 @@ To check the screens quickly on a computer: `cd app/www && python3 -m http.serve
 ## Publish the presentation (GitHub Pages)
 
 Settings → Pages → *Build and deployment* → Source: **Deploy from a branch** → pick this branch and the **`/docs`** folder → Save.
-The presentation will be at `https://kiaanwankhede.github.io/Kiaan_Writing/` and the APK at `…/download/picture-pen.apk`.
+The presentation will be at `https://kiaanwankhede.github.io/Kiaan_Writing/` and the APK at `…/download/learn2write.apk`.
 
 ## Credits
 

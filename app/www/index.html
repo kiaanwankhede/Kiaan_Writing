@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Picture Pen</title>
+  <title>Learn2Write</title>
   <meta name="description" content="A calm, reward-based writing app: trace a number or letter, see one picture and its spelling.">
   <meta name="theme-color" content="#FBF7F0">
   <link rel="stylesheet" href="app.css">
@@ -130,6 +130,25 @@
         </section>
 
         <section class="panel">
+          <h3>Paper practice</h3>
+          <p class="hint">Print a sheet, let him write on paper, then give his picture here: the same reward as on the tablet.</p>
+          <div class="field">
+            <span class="label">Practice sheet</span>
+            <div class="seg" data-setting="sheet">
+              <button data-value="weak">His weakest characters</button>
+              <button data-value="all">The whole practice set</button>
+            </div>
+            <div><button class="soft-btn" id="btn-print">Print or save as PDF</button></div>
+          </div>
+          <div class="field">
+            <span class="label">Done on paper <small>tap what he wrote, rate how it looked if you like, then show his picture</small></span>
+            <ul class="pick-grid" id="paper-pick"></ul>
+            <div class="rate" id="paper-rate" role="group" aria-label="How did it look?"></div>
+            <div><button class="soft-btn primary-soft" id="btn-paper-reward">Show his picture</button></div>
+          </div>
+        </section>
+
+        <section class="panel">
           <h3>Level</h3>
           <div class="level-head"><b id="level-now">Level 1 of 7</b><span id="level-note"></span></div>
           <ol class="ladder" id="level-ladder"></ol>
@@ -228,12 +247,14 @@
           <button class="soft-btn danger" id="btn-reset">Reset progress</button>
         </section>
 
-        <p class="fineprint">Picture Pen · works offline · nothing leaves this tablet.<br>
+        <p class="fineprint">Learn2Write · works offline · nothing leaves this tablet.<br>
           Pictures: Twemoji (jdecked/twemoji), CC BY 4.0. Font: Nunito, SIL Open Font License.</p>
       </main>
     </section>
 
   </div>
+
+  <section id="print-sheet" aria-hidden="true"></section>
 
   <script src="letters.js"></script>
   <script src="rewards.js"></script>

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Picture Pen</string>
-    <string name="title_activity_main">Picture Pen</string>
+    <string name="app_name">Learn2Write</string>
+    <string name="title_activity_main">Learn2Write</string>
     <string name="package_name">com.picturepen.app</string>
     <string name="custom_url_scheme">com.picturepen.app</string>
 </resources>

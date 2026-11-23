@@ -1,8 +1,8 @@
 {
-  "name": "picture-pen",
-  "version": "0.2.0",
+  "name": "learn2write",
+  "version": "0.4.0",
   "private": true,
-  "description": "Picture Pen: a calm, reward-based writing app (numbers and letters) for a young autistic learner.",
+  "description": "Learn2Write: a calm, reward-based writing app (numbers and letters) for a young autistic learner",
   "scripts": {
     "sync": "cap sync",
     "android:build": "cap sync android && cd android && ./gradlew assembleDebug",

@@ -1,5 +1,5 @@
 /*
- * Picture Pen — a calm, reward-based writing app (Android tablet + stylus).
+ * Learn2Write — a calm, reward-based writing app (Android tablet + stylus).
  *
  * Routine: First write -> Then ONE picture with its spelling.
  * Errorless tracing: the ink only moves forward along the correct path,
@@ -27,8 +27,12 @@
     { n: 2, size: 0.70, tol: 10,  guide: 'medium', note: '2 per screen · medium · some room' },
     { n: 3, size: 0.62, tol: 8.5, guide: 'medium', note: '3 per screen · medium · less room' },
     { n: 3, size: 0.54, tol: 7,   guide: 'light',  note: '3 per screen · smaller · little room' },
-    { n: 4, size: 0.48, tol: 6,   guide: 'light',  note: '4 per screen · small · tight' }
+    { n: 4, size: 0.48, tol: 6,   guide: 'light',  note: '4 per screen · small · tight' },
+    // Free writing: no path to follow. He copies a model, like on paper.
+    { n: 1, size: 0.80, tol: 12,  guide: 'free', model: true, startDot: true, note: 'Free writing · 1 per screen · big · copy the model' },
+    { n: 3, mm: 22,     tol: 10,  guide: 'free', model: true, startDot: false, note: 'Free writing · 3 per screen · school-paper size' }
   ];
+  var MMPX = 160 / 25.4; // Android CSS px per millimetre (1 dp = 1/160 inch)
   var LEVEL_UP = { turns: 5, avg: 0.75 };   // last 5 turns averaging 4 stars or more
   var LEVEL_DOWN = { turns: 3, avg: 0.35 }; // last 3 turns averaging under 2 stars
 
@@ -39,14 +43,15 @@
     settings: {
       name: '', set: 'numbers', order: 'sequence', turns: '5',
       levelMode: 'auto', fixedLevel: '1',
-      demo: 'on', voice: 'spell', chime: 'on', calm: prefersReduced ? 'on' : 'off', palm: 'on'
+      demo: 'on', voice: 'spell', chime: 'on', calm: prefersReduced ? 'on' : 'off', palm: 'on', sheet: 'weak'
     },
     level: 1, nextLevel: 1, levelHist: [],
     stats: {},      // key -> { tries, recent: [scores 0..1], best, last }
     sessions: [],   // { at, level, turns, avg }
     cursor: {},     // set -> next index when practising "in order"
     rewardDeck: [], rewardPos: 0,
-    pen: { seen: false, varied: false } // has a stylus been used, and does it report pressure?
+    pen: { seen: false, varied: false }, // has a stylus been used, and does it report pressure?
+    paper: {}       // key -> [{ r: 0..5 (0 = not rated), at }] for work done on paper
   };
 
   // ---------------------------------------------------------------- storage
@@ -243,6 +248,58 @@
   function dist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
+  // Free-writing check: $P point-cloud recognizer (Vatavu, Anthony & Wobbrock, 2012).
+  // Compares the shape he wrote with every character in the practice set.
+  var PN = 32, TPL = {};
+  function pLen(strokes) { var L = 0; strokes.forEach(function (s) { for (var i = 1; i < s.length; i++) L += Math.hypot(s[i][0] - s[i - 1][0], s[i][1] - s[i - 1][1]); }); return L; }
+  function pResample(strokes, n) {
+    var I = pLen(strokes) / (n - 1), out = [], D = 0;
+    strokes.forEach(function (s0) {
+      var s = s0.map(function (p) { return [p[0], p[1]]; });
+      if (!out.length) out.push(s[0].slice());
+      for (var i = 1; i < s.length; i++) {
+        var d = Math.hypot(s[i][0] - s[i - 1][0], s[i][1] - s[i - 1][1]);
+        if (D + d >= I && d > 0) {
+          var t = (I - D) / d, q = [s[i - 1][0] + t * (s[i][0] - s[i - 1][0]), s[i - 1][1] + t * (s[i][1] - s[i - 1][1])];
+          out.push(q); s.splice(i, 0, q); D = 0;
+        } else D += d;
+      }
+    });
+    var last = strokes[strokes.length - 1];
+    while (out.length < n) out.push(last[last.length - 1].slice());
+    return out.slice(0, n);
+  }
+  function pCloud(strokes) {
+    var pts = pResample(strokes, PN), b = bbox([pts]);
+    var size = Math.max(b.maxx - b.minx, b.maxy - b.miny) || 1, cx = 0, cy = 0;
+    pts = pts.map(function (p) { return [(p[0] - b.minx) / size, (p[1] - b.miny) / size]; });
+    pts.forEach(function (p) { cx += p[0]; cy += p[1]; });
+    cx /= pts.length; cy /= pts.length;
+    return pts.map(function (p) { return [p[0] - cx, p[1] - cy]; });
+  }
+  function pCloudDist(a, b, start) {
+    var n = a.length, used = [], sum = 0, i = start;
+    do {
+      var min = Infinity, idx = -1;
+      for (var j = 0; j < n; j++) if (!used[j]) { var d = Math.hypot(a[i][0] - b[j][0], a[i][1] - b[j][1]); if (d < min) { min = d; idx = j; } }
+      used[idx] = true;
+      sum += (1 - ((i - start + n) % n) / n) * min;
+      i = (i + 1) % n;
+    } while (i !== start);
+    return sum;
+  }
+  function pMatch(a, b) {
+    var step = Math.floor(Math.sqrt(a.length)), min = Infinity;
+    for (var i = 0; i < a.length; i += step) min = Math.min(min, pCloudDist(a, b, i), pCloudDist(b, a, i));
+    return min;
+  }
+  function tpl(key) { return TPL[key] || (TPL[key] = pCloud(SHAPES[key].strokes)); }
+  function bbox(strokes) {
+    var b = { minx: Infinity, miny: Infinity, maxx: -Infinity, maxy: -Infinity };
+    strokes.forEach(function (s) { s.forEach(function (p) { b.minx = Math.min(b.minx, p[0]); b.maxx = Math.max(b.maxx, p[0]); b.miny = Math.min(b.miny, p[1]); b.maxy = Math.max(b.maxy, p[1]); }); });
+    return b;
+  }
+
   // ---------------------------------------------------------------- scoring
   // One attempt at one character -> 0..1. Based on how close the pen stayed to
   // the path (compared with the room allowed at this level), how often it
@@ -432,11 +489,12 @@
   var canvas = $('trace-canvas'), ctx = canvas.getContext('2d');
   var geo = { w: 600, h: 400, dpr: 1, cells: [] };
 
-  function newChar(key) {
+  function newChar(key, L) {
     return {
       key: key,
       strokes: SHAPES[key].strokes.map(function (s) { return resample(s, 1); }),
       si: 0, prog: 0, done: false,
+      free: L.guide === 'free', ink: [], assist: false, evalTimer: null,
       m: { devSum: 0, devN: 0, lapses: 0, helps: 0, t0: 0, presSum: 0, presN: 0 }
     };
   }
@@ -445,12 +503,12 @@
     var L = LEVELS[session.level - 1];
     session.doneTurn = false;
     T = {
-      L: L, chars: keys.map(newChar), ci: 0,
+      L: L, chars: keys.map(function (k) { return newChar(k, L); }), ci: 0,
       tracking: false, downId: null, downType: '', done: false, glowAt: 0,
       lastProgressAt: performance.now(), demo: null, finger: null, hover: null, nudgeAt: 0
     };
     T.chars[0].m.t0 = performance.now();
-    $('trace-label').textContent = keys.length === 1 ? (/[0-9]/.test(keys[0]) ? 'Number ' : 'Letter ') + keys[0] : '';
+    $('trace-label').textContent = keys.length === 1 ? (L.guide === 'free' ? 'Write ' : /[0-9]/.test(keys[0]) ? 'Number ' : 'Letter ') + keys[0] : (L.guide === 'free' ? 'Write ' + keys.join(' ') : '');
     renderStars($('stars-trace'));
     show('trace');
     beginChar(450);
@@ -475,9 +533,13 @@
     geo.w = w; geo.h = h; geo.dpr = dpr;
     if (!T) return;
     var n = T.chars.length, pad = Math.min(w, h) * 0.05, gap = h * 0.06;
-    var s = Math.min(T.L.size * (h - 2 * pad), (w - 2 * pad - gap * (n - 1)) / n);
+    var mS = T.L.model ? Math.min((h - 2 * pad) * 0.5, w * 0.2) : 0;
+    var left = pad + (mS ? mS + gap : 0), availW = w - left - pad;
+    var sMax = T.L.mm ? T.L.mm * MMPX / 0.8 : T.L.size * (h - 2 * pad);
+    var s = Math.min(sMax, (availW - gap * (n - 1)) / n, h - 2 * pad);
     var total = n * s + (n - 1) * gap;
-    var x0 = (w - total) / 2, y0 = (h - s) / 2;
+    var x0 = left + (availW - total) / 2, y0 = (h - s) / 2;
+    geo.model = mS ? { x: pad, y: (h - mS) / 2, s: mS } : null;
     geo.cells = [];
     for (var i = 0; i < n; i++) geo.cells.push({ x: x0 + i * (s + gap), y: y0, s: s });
   }
@@ -497,6 +559,11 @@
     if (!T || T.done) return;
     var c = cur(), st = c.strokes[c.si];
     if (isHelp) c.m.helps++;
+    if (c.free && !c.assist) {
+      var tot = c.strokes.reduce(function (a, s) { return a + s.len; }, 0);
+      T.demo = { model: true, ci: T.ci, t0: performance.now(), dur: Math.max(900, tot * 12) };
+      return;
+    }
     T.demo = { ci: T.ci, si: c.si, from: c.prog, t0: performance.now(), dur: Math.max(700, (st.len - c.prog) * 14) };
   }
 
@@ -519,6 +586,7 @@
     try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
     var p = toUnits(e, T.ci);
     T.finger = p; T.hover = null;
+    if (cur().free && !cur().assist) { freeDown(e, p); notePressure(e); return; }
     if (!tryPickUp(p)) T.nudgeAt = performance.now(); // gently point at where to start; no error sound
     notePressure(e);
   });
@@ -534,14 +602,17 @@
     for (var i = 0; i < evs.length && !T.done && T.downId !== null; i++) {
       var p = toUnits(evs[i], T.ci);
       T.finger = p;
-      if (T.tracking) advance(p); else tryPickUp(p);
+      if (cur().free && !cur().assist) { if (T.tracking) freeMove(evs[i], p); }
+      else if (T.tracking) advance(p); else tryPickUp(p);
       notePressure(evs[i]);
     }
   });
   function release(e) {
     if (e.pointerType === 'pen') { penDown = false; lastPenAt = performance.now(); }
     if (!T || e.pointerId !== T.downId) return;
+    var wasFree = T.tracking && cur().free && !cur().assist && !T.done;
     T.tracking = false; T.downId = null; T.finger = null;
+    if (wasFree) freeUp();
   }
   canvas.addEventListener('pointerup', release);
   canvas.addEventListener('pointercancel', release);
@@ -590,25 +661,59 @@
     }
   }
 
-  function completeStroke(p) {
-    var c = cur(), st = c.strokes[c.si];
-    c.prog = st.len;
-    c.si++;
-    if (c.si < c.strokes.length) {
-      chime('stroke');
-      c.prog = 0;
+  // ---------------------------------------------------------------- free writing
+  function pressOf(e) { return e.pointerType === 'pen' && e.pressure > 0 ? e.pressure : 0.5; }
+  function inCell(p) { return p[0] > -25 && p[0] < 125 && p[1] > -25 && p[1] < 125; }
+  function freeDown(e, p) {
+    var c = cur();
+    if (!inCell(p)) { T.nudgeAt = performance.now(); return; }
+    clearTimeout(c.evalTimer); c.evalTimer = null;
+    T.demo = null;
+    if (!c.m.t0) c.m.t0 = performance.now();
+    c.ink.push([[p[0], p[1], pressOf(e)]]);
+    T.tracking = true; T.lastProgressAt = performance.now();
+  }
+  function freeMove(e, p) {
+    var c = cur(), s = c.ink[c.ink.length - 1];
+    if (!s) return;
+    var last = s[s.length - 1];
+    if (Math.hypot(p[0] - last[0], p[1] - last[1]) < 0.6) return;
+    s.push([p[0], p[1], pressOf(e)]);
+    T.lastProgressAt = performance.now();
+  }
+  function freeUp() {
+    var c = cur(), need = c.strokes.reduce(function (a, s) { return a + s.len; }, 0) * 0.45;
+    if (pLen(c.ink) >= need) c.evalTimer = setTimeout(function () { evaluateFree(c); }, 1000);
+  }
+  // Checks the shape once he pauses. Recognised: success. Not recognised: the path
+  // appears and he traces it, so every turn still ends in success (errorless).
+  function evaluateFree(c) {
+    if (!T || cur() !== c || c.done || T.tracking) return;
+    var strokes = c.ink.map(function (s) { return s.map(function (p) { return [p[0], p[1]]; }); }).filter(function (s) { return s.length > 1; });
+    if (!strokes.length) return;
+    var cand = pCloud(strokes), dT = pMatch(cand, tpl(c.key)), best = Infinity;
+    setKeys().forEach(function (k) { if (k !== c.key) best = Math.min(best, pMatch(cand, tpl(k))); });
+    var b = bbox(strokes), hgt = b.maxy - b.miny, big = Math.max(hgt, b.maxx - b.minx);
+    if (dT <= 1.6 && dT <= best * 1.2 && big >= 22) {
+      var inLines = 0, total = 0;
+      strokes.forEach(function (s) { s.forEach(function (p) { total++; if (p[1] >= 0 && p[1] <= 100) inLines++; }); });
+      var shape = clamp(1 - (dT - 0.5) / 1.1, 0, 1), size = clamp(1 - Math.abs(hgt - 80) / 80, 0, 1);
+      c.m.free = { shape: Math.round(shape * 100) / 100, size: Math.round(size * 100) / 100 };
+      finishChar(c, clamp(0.6 * shape + 0.2 * size + 0.2 * (inLines / total) - 0.15 * c.m.helps, 0, 1));
+    } else {
+      c.assist = true; c.m.helps++;
+      c.si = 0; c.prog = 0;
       T.lastProgressAt = performance.now();
-      var keepGoing = T.tracking && dist(p, c.strokes[c.si].pts[0]) <= startTolUnits();
-      if (!keepGoing) {
-        T.tracking = false;
-        if (S.demo === 'on') setTimeout(function () { if (T && !T.tracking && !T.done && cur() === c && c.prog === 0) playDemo(false); }, 350);
-      }
-      return;
+      $('trace-label').textContent = "Let's trace it together";
+      if (S.voice !== 'off') { stopSpeech(); speak("Let's trace it together"); }
+      if (S.demo === 'on') setTimeout(function () { if (T && cur() === c && !T.tracking) playDemo(false); }, 900);
     }
-    // Character finished
+  }
+
+  function finishChar(c, score) {
     c.si = c.strokes.length - 1;
     c.done = true;
-    c.score = scoreAttempt(c.m, tolUnits());
+    c.score = score;
     recordAttempt(c.key, c.score, c.m);
     T.tracking = false;
     if (T.ci < T.chars.length - 1) {
@@ -624,6 +729,26 @@
     T.done = true; T.glowAt = performance.now();
     chime('turn');
     turnDone();
+  }
+
+  function completeStroke(p) {
+    var c = cur(), st = c.strokes[c.si];
+    c.prog = st.len;
+    c.si++;
+    if (c.si < c.strokes.length) {
+      chime('stroke');
+      c.prog = 0;
+      T.lastProgressAt = performance.now();
+      var keepGoing = T.tracking && dist(p, c.strokes[c.si].pts[0]) <= startTolUnits();
+      if (!keepGoing) {
+        T.tracking = false;
+        if (S.demo === 'on') setTimeout(function () { if (T && !T.tracking && !T.done && cur() === c && c.prog === 0) playDemo(false); }, 350);
+      }
+      return;
+    }
+    // Character finished. Traced after a free-writing attempt counts as help (at most ~3 stars).
+    var sc = scoreAttempt(c.m, tolUnits());
+    finishChar(c, c.assist ? Math.min(sc * 0.6, 0.55) : sc);
   }
 
   function turnDone() {
@@ -649,6 +774,78 @@
     ctx.lineTo(b[0], b[1]);
   }
 
+  // Pencil-look ink: graphite grey, darker and a little thicker with more pen pressure.
+  function drawInk(ch, alpha, blue) {
+    var varied = data.pen.varied;
+    ch.ink.forEach(function (s) {
+      for (var i = 1; i < s.length; i++) {
+        var pr = s[i][2];
+        ctx.globalAlpha = alpha * (blue ? 1 : varied ? 0.45 + 0.55 * pr : 0.85);
+        ctx.strokeStyle = blue ? C.ink : '#3A3F47';
+        ctx.lineWidth = blue ? 6 : 4.2 * (varied ? 0.75 + 0.5 * pr : 1);
+        ctx.beginPath(); ctx.moveTo(s[i - 1][0], s[i - 1][1]); ctx.lineTo(s[i][0], s[i][1]); ctx.stroke();
+      }
+      if (s.length === 1) { ctx.globalAlpha = alpha; ctx.fillStyle = blue ? C.ink : '#3A3F47'; ctx.beginPath(); ctx.arc(s[0][0], s[0][1], 2.2, 0, Math.PI * 2); ctx.fill(); }
+    });
+    ctx.globalAlpha = 1;
+  }
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  // A free-writing cell: just the lines, a soft box and (at the first free level) a start dot.
+  function drawFree(ch, isCur, now) {
+    if (isCur) {
+      ctx.fillStyle = '#F5F7FF'; roundRect(-8, -2, 116, 104, 10); ctx.fill();
+      // keep the writing lines visible inside the box, like on paper
+      ctx.lineWidth = 0.8; ctx.strokeStyle = C.base;
+      [10, 90].forEach(function (y) { ctx.beginPath(); ctx.moveTo(-8, y); ctx.lineTo(108, y); ctx.stroke(); });
+      ctx.setLineDash([3, 3]); ctx.strokeStyle = '#E4DCCB';
+      ctx.beginPath(); ctx.moveTo(-8, 50); ctx.lineTo(108, 50); ctx.stroke(); ctx.setLineDash([]);
+    }
+    else if (!ch.done) { ctx.strokeStyle = C.track; ctx.lineWidth = 1; ctx.setLineDash([3, 3]); roundRect(-8, -2, 116, 104, 10); ctx.stroke(); ctx.setLineDash([]); }
+    if (isCur && T.L.startDot && !ch.ink.length) {
+      var p0 = ch.strokes[0].pts[0], pulse = S.calm === 'on' ? 0 : Math.sin(now / 260);
+      ctx.fillStyle = C.start; ctx.beginPath(); ctx.arc(p0[0], p0[1], 5 + pulse, 0, Math.PI * 2); ctx.fill();
+    }
+    if (ch.done && T.done && S.calm !== 'on') {
+      var gl = Math.min(1, (now - T.glowAt) / 500);
+      ctx.shadowColor = 'rgba(66, 99, 235, .45)'; ctx.shadowBlur = 12 * Math.sin(gl * Math.PI) * geo.dpr;
+    }
+    drawInk(ch, 1, ch.done);
+    ctx.shadowBlur = 0;
+    if (isCur && T.hover && !T.tracking) {
+      ctx.strokeStyle = 'rgba(66, 99, 235, .45)'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(T.hover[0], T.hover[1], 3.5, 0, Math.PI * 2); ctx.stroke();
+    }
+  }
+  // The model to copy, in its own box on the left. "Show me" draws it stroke by stroke.
+  function drawModel(now) {
+    var m = geo.model, k = geo.dpr, ch = T.done ? T.chars[T.chars.length - 1] : cur();
+    ctx.setTransform(k, 0, 0, k, 0, 0);
+    ctx.fillStyle = '#F4EFE6'; roundRect(m.x, m.y, m.s, m.s, 18); ctx.fill();
+    ctx.setTransform(k * m.s / 112, 0, 0, k * m.s / 112, k * (m.x + m.s * 6 / 112), k * (m.y + m.s * 6 / 112));
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#1F2A44'; ctx.lineWidth = 8;
+    ch.strokes.forEach(function (st) { polyline(st, 0, st.len); ctx.stroke(); });
+    var p0 = ch.strokes[0].pts[0];
+    ctx.fillStyle = C.start; ctx.beginPath(); ctx.arc(p0[0], p0[1], 6, 0, Math.PI * 2); ctx.fill();
+    if (T.demo && T.demo.model) {
+      var tot = ch.strokes.reduce(function (a, s) { return a + s.len; }, 0);
+      var f = Math.min(1, (now - T.demo.t0) / T.demo.dur), left = f * tot, gp = null;
+      ctx.strokeStyle = C.ghost; ctx.lineWidth = 9; ctx.globalAlpha = 0.5;
+      for (var i = 0; i < ch.strokes.length && left > 0; i++) {
+        var st = ch.strokes[i], upto = Math.min(st.len, left);
+        polyline(st, 0, upto); ctx.stroke();
+        gp = pointAt(st, upto); left -= st.len;
+      }
+      ctx.globalAlpha = 1;
+      if (gp) { ctx.fillStyle = C.ghost; ctx.beginPath(); ctx.arc(gp[0], gp[1], 6, 0, Math.PI * 2); ctx.fill(); }
+      if (f >= 1 && now - T.demo.t0 > T.demo.dur + 400) T.demo = null;
+    }
+    ctx.setTransform(k, 0, 0, k, 0, 0);
+  }
+
   function draw(now) {
     var k = geo.dpr;
     ctx.setTransform(k, 0, 0, k, 0, 0);
@@ -659,13 +856,15 @@
 
     // Writing lines across the whole page, like the paper he will move on to.
     var c0 = geo.cells[0], u = c0.s / 100;
+    var lx0 = geo.model ? geo.model.x + geo.model.s + (c0.x - geo.model.x - geo.model.s) * 0.4 : geo.w * 0.03;
     ctx.lineWidth = Math.max(1, 0.8 * u);
     ctx.strokeStyle = C.base;
-    [10, 90].forEach(function (y) { ctx.beginPath(); ctx.moveTo(geo.w * 0.03, c0.y + y * u); ctx.lineTo(geo.w * 0.97, c0.y + y * u); ctx.stroke(); });
+    [10, 90].forEach(function (y) { ctx.beginPath(); ctx.moveTo(lx0, c0.y + y * u); ctx.lineTo(geo.w * 0.97, c0.y + y * u); ctx.stroke(); });
     ctx.setLineDash([3 * u, 3 * u]);
     ctx.strokeStyle = C.lines;
-    ctx.beginPath(); ctx.moveTo(geo.w * 0.03, c0.y + 50 * u); ctx.lineTo(geo.w * 0.97, c0.y + 50 * u); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(lx0, c0.y + 50 * u); ctx.lineTo(geo.w * 0.97, c0.y + 50 * u); ctx.stroke();
     ctx.setLineDash([]);
+    if (geo.model) drawModel(now);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -673,9 +872,12 @@
       var ch = T.chars[ci], cell = geo.cells[ci];
       var isCur = ci === T.ci && !T.done;
       ctx.setTransform(k * cell.s / 100, 0, 0, k * cell.s / 100, k * cell.x, k * cell.y);
+      if (ch.free && !ch.assist) { drawFree(ch, isCur, now); continue; }
+      var g = ch.assist ? 'strong' : guide;
+      if (ch.assist) drawInk(ch, 0.25, false); // what he wrote, faintly, under the path
 
       // Track (the road to follow). Upcoming characters wait quietly in the background.
-      ctx.globalAlpha = guide === 'light' ? 0.45 : 1;
+      ctx.globalAlpha = g === 'light' ? 0.45 : 1;
       if (!isCur && !ch.done) ctx.globalAlpha *= 0.55;
       ctx.strokeStyle = C.track;
       ctx.lineWidth = 17;
@@ -701,7 +903,7 @@
       var curSt = ch.strokes[ch.si];
 
       // Direction arrows along what is left of the current stroke
-      if (guide === 'strong') {
+      if (g === 'strong') {
         ctx.strokeStyle = C.arrow;
         ctx.lineWidth = 1.8;
         for (var s = ch.prog + 10; s < curSt.len - 6; s += 15) {
@@ -713,7 +915,7 @@
         }
       }
       // Finish ring
-      if (guide !== 'light') {
+      if (g !== 'light') {
         var end = curSt.pts[curSt.pts.length - 1];
         ctx.strokeStyle = C.arrow; ctx.lineWidth = 1.4;
         ctx.setLineDash([2, 2]);
@@ -721,7 +923,7 @@
         ctx.setLineDash([]);
       }
       // Demo: a ghost dot shows the way
-      if (T.demo && T.demo.ci === ci) {
+      if (T.demo && !T.demo.model && T.demo.ci === ci) {
         var f = Math.min(1, (now - T.demo.t0) / T.demo.dur);
         var ds = ch.strokes[T.demo.si];
         var upto = T.demo.from + (ds.len - T.demo.from) * f;
@@ -737,11 +939,11 @@
       var head = pointAt(curSt, ch.prog);
       var pulse = calm ? 0 : Math.sin(now / 260) * 1.1;
       var nudge = now - T.nudgeAt < 700 ? 3 * Math.sin(((now - T.nudgeAt) / 700) * Math.PI) : 0;
-      var r = (guide === 'light' ? 6 : 7.5) + pulse + nudge;
+      var r = (g === 'light' ? 6 : 7.5) + pulse + nudge;
       ctx.fillStyle = ch.prog === 0 ? C.start : C.ink;
       ctx.beginPath(); ctx.arc(head[0], head[1], r, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#fff';
-      if (guide === 'strong' && ch.prog === 0 && ch.strokes.length > 1) {
+      if (g === 'strong' && ch.prog === 0 && ch.strokes.length > 1) {
         ctx.font = '900 8px Nunito, ui-rounded, system-ui, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(String(ch.si + 1), head[0], head[1] + 0.4);
@@ -793,8 +995,9 @@
     setTimeout(function () { if (current === 'reward') playWord($('reward-tiles'), rw.w); }, 350);
   }
   $('reward-pic').addEventListener('click', function () { if (shownReward) playWord($('reward-tiles'), shownReward.w); });
-  $('btn-again').addEventListener('click', function () { startTurn(); });
+  $('btn-again').addEventListener('click', function () { if (session.paper) { show('home'); return; } startTurn(); });
   $('btn-next').addEventListener('click', function () {
+    if (session.paper) { show('home'); return; }
     session.idx++;
     if (session.idx >= session.queue.length) { finishSession(); return; }
     startTurn();
@@ -840,7 +1043,9 @@
       if (r) {
         rated.push({ key: key, stars: r.stars });
         li.querySelector('.st').innerHTML = starRow(r.stars);
-        li.querySelector('.meta').textContent = r.stars.toFixed(1) + ' · ' + r.tries + (r.tries === 1 ? ' try' : ' tries') + (r.trend > 0 ? ' · ↑' : r.trend < 0 ? ' · ↓' : '');
+        var pr = (data.paper[key] || []).filter(function (x) { return x.r > 0; }).slice(-5);
+        var paperTxt = pr.length ? ' · paper ' + (pr.reduce(function (a, x) { return a + x.r; }, 0) / pr.length).toFixed(1) + '★' : '';
+        li.querySelector('.meta').textContent = r.stars.toFixed(1) + ' · ' + r.tries + (r.tries === 1 ? ' try' : ' tries') + (r.trend > 0 ? ' · ↑' : r.trend < 0 ? ' · ↓' : '') + paperTxt;
       } else {
         li.querySelector('.st').innerHTML = starRow(0);
         li.querySelector('.meta').textContent = 'not tried yet';
@@ -862,7 +1067,7 @@
     LEVELS.forEach(function (x, i) {
       var li = document.createElement('li');
       li.className = (i + 1 === lv ? 'now' : i + 1 < lv ? 'past' : '');
-      li.innerHTML = '<b>' + (i + 1) + '</b><span>' + x.n + '×</span>';
+      li.innerHTML = '<b>' + (i + 1) + '</b><span>' + (x.guide === 'free' ? 'free ' : '') + x.n + '×</span>';
       li.title = x.note;
       ladder.appendChild(li);
     });
@@ -895,6 +1100,7 @@
       tb.appendChild(tr);
     });
     renderPressure(keys);
+    renderPaper(keys);
     var seen = data.rewardPos || 0;
     $('pictures-seen').textContent = seen + ' of ' + REWARDS.length + ' pictures shown in this round';
 
@@ -935,6 +1141,86 @@
     box.innerHTML = html + '</ul><p class="hint">Average pen pressure over his last 5 tries per character. Every pen reads a little differently, so the trend matters more than the exact number. Steady, comfortable pressure helps when he moves to pencil and paper.</p>';
   }
 
+  // ---------------------------------------------------------------- paper practice
+  var paperSel = [], paperRating = 0;
+  function weakest(n) {
+    var keys = setKeys();
+    var scored = keys.map(function (k) { var r = rating(k); return { k: k, s: r ? r.stars : 2.5 }; });
+    scored.sort(function (a, b) { return a.s - b.s; });
+    return scored.slice(0, n).map(function (x) { return x.k; }).sort(function (a, b) { return keys.indexOf(a) - keys.indexOf(b); });
+  }
+  function renderPaper(keys) {
+    var pick = $('paper-pick');
+    pick.innerHTML = '';
+    paperSel = paperSel.filter(function (k) { return keys.indexOf(k) !== -1; });
+    keys.forEach(function (key) {
+      var li = document.createElement('li'), b = document.createElement('button');
+      b.textContent = key;
+      b.setAttribute('aria-pressed', paperSel.indexOf(key) !== -1 ? 'true' : 'false');
+      b.addEventListener('click', function () {
+        var i = paperSel.indexOf(key);
+        if (i === -1) paperSel.push(key); else paperSel.splice(i, 1);
+        b.setAttribute('aria-pressed', i === -1 ? 'true' : 'false');
+      });
+      li.appendChild(b); pick.appendChild(li);
+    });
+    var rate = $('paper-rate');
+    rate.innerHTML = '';
+    for (var n = 1; n <= 5; n++) (function (n) {
+      var b = document.createElement('button');
+      b.className = n <= paperRating ? 'on' : '';
+      b.setAttribute('aria-label', n + (n === 1 ? ' star' : ' stars'));
+      b.innerHTML = '<i></i>';
+      b.addEventListener('click', function () { paperRating = paperRating === n ? 0 : n; renderPaper(setKeys()); });
+      rate.appendChild(b);
+    })(n);
+  }
+  $('btn-paper-reward').addEventListener('click', function () {
+    var keys = paperSel.length ? paperSel.slice() : [];
+    keys.forEach(function (k) {
+      data.paper[k] = (data.paper[k] || []).concat({ r: paperRating, at: Date.now() }).slice(-20);
+    });
+    save();
+    unlockSpeech();
+    paperSel = []; paperRating = 0;
+    session = { paper: true, level: currentLevel(), queue: [keys], idx: 0, doneTurn: false, turnScores: [] };
+    showReward();
+  });
+
+  // Practice sheet: each row has the model, two dotted copies to trace and three empty boxes.
+  function sheetCell(key, kind) {
+    var lines = '<line x1="0" y1="10" x2="100" y2="10" stroke="#D8CFBF" stroke-width="1"/><line x1="0" y1="90" x2="100" y2="90" stroke="#D8CFBF" stroke-width="1"/><line x1="0" y1="50" x2="100" y2="50" stroke="#E9E3D7" stroke-width="1" stroke-dasharray="3 3"/>';
+    var body = '';
+    if (kind !== 'blank') {
+      SHAPES[key].strokes.forEach(function (st) {
+        var d = 'M' + st.map(function (p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' L');
+        body += kind === 'model'
+          ? '<path d="' + d + '" fill="none" stroke="#1F2A44" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>'
+          : '<path d="' + d + '" fill="none" stroke="#9AA0AA" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0.1 6"/>';
+      });
+      if (kind === 'dots') { var p0 = SHAPES[key].strokes[0][0]; body += '<circle cx="' + p0[0] + '" cy="' + p0[1] + '" r="3.6" fill="#2F9E6B"/>'; }
+    }
+    return '<svg viewBox="-6 0 112 100" xmlns="http://www.w3.org/2000/svg">' + lines + body + '</svg>';
+  }
+  function buildSheet() {
+    var keys = S.sheet === 'all' ? setKeys().slice(0, 9) : weakest(6);
+    var name = (S.name || '').trim();
+    var html = '<div class="sheet-head"><h1>Learn2Write practice</h1><span>' + new Date().toLocaleDateString() + '</span></div>' +
+      '<p class="sheet-name">Name: ' + (name ? name.replace(/[<>&]/g, '') : '______________________') + '</p>';
+    keys.forEach(function (k) {
+      html += '<div class="sheet-row">' + sheetCell(k, 'model') + sheetCell(k, 'dots') + sheetCell(k, 'dots') + sheetCell(k, 'blank') + sheetCell(k, 'blank') + sheetCell(k, 'blank') + '</div>';
+    });
+    html += '<p class="sheet-foot">Start at the green dot. Trace the dotted ones, then write it on your own. When a row is done, open Learn2Write → Grown-ups → Done on paper to give the picture.</p>';
+    $('print-sheet').innerHTML = html;
+  }
+  $('btn-print').addEventListener('click', function () {
+    buildSheet();
+    setTimeout(function () {
+      if (window.L2WNative && window.L2WNative.print) window.L2WNative.print(); // Android print: printer or "Save as PDF"
+      else window.print();
+    }, 100);
+  });
+
   $('set-select').addEventListener('change', function (e) { S.set = e.target.value; save(); renderParent(); });
   $('fixed-level').addEventListener('change', function (e) { S.fixedLevel = e.target.value; save(); renderParent(); });
   document.querySelectorAll('.seg').forEach(function (seg) {
@@ -951,7 +1237,7 @@
   $('name-input').addEventListener('input', function (e) { S.name = e.target.value.slice(0, 24); save(); });
   $('btn-reset').addEventListener('click', function () {
     if (!window.confirm('Reset stars, level and session history? Settings stay.')) return;
-    data.stats = {}; data.sessions = []; data.cursor = {}; data.level = 1; data.nextLevel = 1; data.levelHist = [];
+    data.stats = {}; data.sessions = []; data.cursor = {}; data.level = 1; data.nextLevel = 1; data.levelHist = []; data.paper = {};
     save(); renderParent();
   });
   $('btn-parent-done').addEventListener('click', function () { show('home'); });
@@ -977,12 +1263,13 @@
   // Small hook used by automated checks: current state and on-screen stroke points.
   window.PicturePen = {
     state: function () {
-      return { screen: current, keys: T && T.chars.map(function (c) { return c.key; }), ci: T && T.ci, stroke: T && cur().si, done: T && T.done, idx: session && session.idx, level: currentLevel(), tracking: !!(T && T.tracking), downType: T && T.downType };
+      return { screen: current, keys: T && T.chars.map(function (c) { return c.key; }), ci: T && T.ci, stroke: T && cur().si, done: T && T.done, idx: session && session.idx, level: currentLevel(), tracking: !!(T && T.tracking), downType: T && T.downType, free: !!(T && cur().free), assist: !!(T && cur().assist) };
     },
-    strokeScreenPoints: function () {
+    strokeScreenPoints: function (otherKey) {
       if (!T) return [];
       var r = canvas.getBoundingClientRect(), c = geo.cells[T.ci];
-      return cur().strokes.map(function (st) {
+      var strokes = otherKey ? SHAPES[otherKey].strokes.map(function (s) { return resample(s, 1); }) : cur().strokes;
+      return strokes.map(function (st) {
         return st.pts.filter(function (_, i) { return i % 3 === 0 || i === st.pts.length - 1; }).map(function (p) {
           return [r.left + c.x + p[0] * c.s / 100, r.top + c.y + p[1] * c.s / 100];
         });
