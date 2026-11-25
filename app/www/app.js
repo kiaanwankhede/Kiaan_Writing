@@ -572,13 +572,54 @@
   function palmBlocked(e) {
     return S.palm === 'on' && e.pointerType === 'touch' && (penDown || performance.now() - lastPenAt < 5000);
   }
+
+  // Palm guard for simple styluses (they look like a finger to the tablet).
+  // 1) Size: a palm's contact is much bigger than a pen tip. The limit adapts to
+  //    the touches that actually write, and never drops below a child's finger.
+  // 2) Take-over: a touch that is not writing (e.g. a resting palm) gives way
+  //    to the next touch, so the pen is never locked out.
+  var contactSizes = [];
+  function contactSize(e) {
+    var s = Math.max(e.width || 0, e.height || 0);
+    return s > 1.5 ? s : 0; // 0 = this tablet does not report touch size
+  }
+  function palmLimit() {
+    if (contactSizes.length < 3) return 80;
+    var a = contactSizes.slice().sort(function (x, y) { return x - y; });
+    return clamp(a[Math.floor(a.length / 2)] * 3, 60, 110);
+  }
+  function looksLikePalm(e) {
+    if (S.palm !== 'on' || e.pointerType !== 'touch') return false;
+    var s = contactSize(e);
+    return s > 0 && s > palmLimit();
+  }
+  function noteWritingSize(e) {
+    var s = contactSize(e);
+    if (!s || e.pointerType !== 'touch') return;
+    contactSizes.push(s);
+    if (contactSizes.length > 15) contactSizes.shift();
+  }
+  function canTakeOver(e) {
+    if (S.palm !== 'on') return e.pointerType === 'pen' && T.downType !== 'pen';
+    if (e.pointerType === 'pen' && T.downType !== 'pen') return true;
+    if (!T.tracking) return true;
+    var c = cur();
+    if (c.free && !c.assist) { var s = c.ink[c.ink.length - 1]; if (s && pLen([s]) < 6) return true; }
+    return false;
+  }
+  function dropHolder() {
+    var c = cur();
+    if (T.tracking && c.free && !c.assist) c.ink.pop(); // remove the resting hand's tiny mark
+    T.tracking = false; T.downId = null;
+  }
+
   canvas.addEventListener('pointerdown', function (e) {
     if (!T || T.done) return;
     if (e.pointerType === 'pen') { penDown = true; lastPenAt = performance.now(); }
-    if (palmBlocked(e)) return;
+    if (palmBlocked(e) || looksLikePalm(e)) return;
     if (T.downId !== null && T.downId !== e.pointerId) {
-      if (e.pointerType === 'pen' && T.downType !== 'pen') { T.tracking = false; } // the pen takes over from a palm
-      else return;
+      if (!canTakeOver(e)) return;
+      dropHolder();
     }
     e.preventDefault();
     audio();
@@ -586,8 +627,9 @@
     try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
     var p = toUnits(e, T.ci);
     T.finger = p; T.hover = null;
-    if (cur().free && !cur().assist) { freeDown(e, p); notePressure(e); return; }
+    if (cur().free && !cur().assist) { freeDown(e, p); if (T.tracking) noteWritingSize(e); notePressure(e); return; }
     if (!tryPickUp(p)) T.nudgeAt = performance.now(); // gently point at where to start; no error sound
+    else noteWritingSize(e);
     notePressure(e);
   });
   canvas.addEventListener('pointermove', function (e) {
@@ -1220,6 +1262,20 @@
       else window.print();
     }, 100);
   });
+
+  // Touch check: lets a grown-up see whether the pen and his palm are told apart.
+  (function () {
+    var pad = $('touch-test'), out = $('touch-test-out');
+    if (!pad) return;
+    pad.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      if (e.pointerType === 'pen') { out.textContent = 'Pen detected: pressure and the palm guard work automatically with this pen.'; return; }
+      if (e.pointerType === 'mouse') { out.textContent = 'Mouse: try this on the tablet with the pen and his palm.'; return; }
+      var s = contactSize(e), lim = palmLimit();
+      if (!s) { out.textContent = 'This tablet does not report touch size, so palms cannot be told apart by size. Taking over from a resting palm still works; keep the glove for free writing.'; return; }
+      out.textContent = 'Touch size ' + Math.round(s) + ' px: ' + (s > lim ? 'treated as a palm and ignored.' : 'treated as the pen or a finger and used.') + ' (Palm limit now ' + Math.round(lim) + ' px.)';
+    });
+  })();
 
   $('set-select').addEventListener('change', function (e) { S.set = e.target.value; save(); renderParent(); });
   $('fixed-level').addEventListener('change', function (e) { S.fixedLevel = e.target.value; save(); renderParent(); });

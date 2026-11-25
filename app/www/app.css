@@ -309,6 +309,7 @@ table.sessions td.muted { color: var(--muted); }
 .rate button.on i { background: var(--star); }
 .soft-btn.primary-soft { background: var(--primary); border-color: var(--primary); color: #fff; }
 #print-sheet { display: none; }
+.touch-test { margin-top: 6px; min-height: 110px; border: 2px dashed var(--line-strong); border-radius: 16px; display: grid; place-items: center; text-align: center; padding: 12px; color: var(--muted); font-size: 16px; touch-action: none; user-select: none; }
 .fineprint { color: var(--muted); font-size: 14px; text-align: center; margin: 8px 0 0; }
 .fineprint a { color: inherit; }
 
