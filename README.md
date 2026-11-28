@@ -9,6 +9,7 @@ Built as an **Android app for a Lenovo tablet with a stylus**.
 |---|---|
 | **Android app (APK)** | `docs/download/learn2write.apk` |
 | **Presentation** (research, design, mock screens, plan) | `docs/index.html`, published with GitHub Pages |
+| **The 9 levels** (PowerPoint, one slide per level) | `docs/download/Learn2Write-levels.pptx` |
 | **App source** | `app/` (Capacitor project: `app/www` is the app, `app/android` the native shell) |
 
 ## What the app does
