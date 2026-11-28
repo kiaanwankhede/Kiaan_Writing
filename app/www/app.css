@@ -259,10 +259,15 @@ select, input[type="text"] {
 .perf-summary b { font-size: 28px; font-weight: 900; letter-spacing: .08em; }
 .chip-good { background: #E6F2EF; }
 .chip-weak { background: #FBEDEB; }
-.perf-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-.perf { border-radius: 16px; padding: 10px 12px; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; border: 2px solid var(--line); background: #fff; }
-.perf .ch { grid-row: span 2; font-size: 40px; font-weight: 900; line-height: 1; min-width: 34px; text-align: center; }
-.perf .meta { font-size: 13px; color: var(--muted); font-weight: 700; }
+.perf-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.perf { border-radius: 16px; padding: 10px 12px; display: grid; grid-template-columns: auto 1fr; grid-template-areas: "ch sc" "ch meta" "st st"; column-gap: 12px; row-gap: 2px; align-items: center; border: 2px solid var(--line); background: #fff; }
+.perf .ch { grid-area: ch; font-size: 40px; font-weight: 900; line-height: 1; min-width: 34px; text-align: center; }
+.perf .sc { grid-area: sc; font-size: 22px; font-weight: 900; line-height: 1.1; }
+.perf .sc small { font-size: 14px; font-weight: 800; color: var(--muted); }
+.perf .sc em { font-style: normal; font-size: 18px; color: var(--muted); }
+.perf .st { grid-area: st; margin-top: 6px; gap: 1px; }
+.perf .st i { width: 15.5px; height: 15.5px; }
+.perf .meta { grid-area: meta; font-size: 13px; color: var(--muted); font-weight: 700; }
 .perf.none .ch { color: var(--line-strong); }
 .perf.b1, .perf.b2 { background: #FBEDEB; border-color: #F0CFCA; }
 .perf.b3 { background: #FFF7E3; border-color: #F3E2B5; }
@@ -304,8 +309,8 @@ table.sessions td.muted { color: var(--muted); }
 .pres-grid li.hi span i { background: var(--danger); }
 .pres-grid small { font-size: 13px; color: var(--muted); text-align: right; font-weight: 800; }
 .pick-grid button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
-.rate { display: flex; gap: 6px; margin: 4px 0 6px; }
-.rate button { width: 46px; height: 46px; border-radius: 12px; border: 2px solid var(--line-strong); background: #fff; display: grid; place-items: center; padding: 0; }
+.rate { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 6px; }
+.rate button { width: 44px; height: 44px; border-radius: 12px; border: 2px solid var(--line-strong); background: #fff; display: grid; place-items: center; padding: 0; }
 .rate button i { width: 26px; height: 26px; display: block; background: #E2D9C9;
   -webkit-mask: url(img/ui/star-mask.svg) center / contain no-repeat; mask: url(img/ui/star-mask.svg) center / contain no-repeat; }
 .rate button.on i { background: var(--star); }

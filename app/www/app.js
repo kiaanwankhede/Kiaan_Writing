@@ -60,8 +60,8 @@
   var OLD_LEVEL_MAP = { 1: 1, 2: 3, 3: 4, 4: 7, 5: 9, 6: 11, 7: 14, 8: 18, 9: 20 };
   var V2_LEVEL_MAP = { 21: 22, 22: 23 };
   var MMPX = 160 / 25.4; // Android CSS px per millimetre (1 dp = 1/160 inch)
-  var LEVEL_UP = { turns: 5, avg: 0.75 };   // last 5 turns averaging 4 stars or more
-  var LEVEL_DOWN = { turns: 3, avg: 0.35 }; // last 3 turns averaging under 2 stars
+  var LEVEL_UP = { turns: 5, stars: 8 };   // last 5 turns averaging 8 of 10 stars or more
+  var LEVEL_DOWN = { turns: 3, stars: 4 }; // last 3 turns averaging under 4 of 10 stars
 
   var prefersReduced = false;
   try { prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
@@ -108,6 +108,14 @@
     data.nextLevel = mapLv(data.nextLevel || data.level);
     S.fixedLevel = String(mapLv(S.fixedLevel));
     data.levelsV = 3;
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+  // Stars used to be out of 5 and are now out of 10: paper ratings saved before are doubled.
+  if (data.starsV !== 10) {
+    Object.keys(data.paper || {}).forEach(function (k) {
+      (data.paper[k] || []).forEach(function (x) { if (x.r > 0) x.r = Math.min(10, x.r * 2); });
+    });
+    data.starsV = 10;
     try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {}
   }
   function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {} }
@@ -349,12 +357,19 @@
     var acc = 1 - clamp((rel - 0.1) / 0.7, 0, 1);
     return clamp(acc - 0.12 * m.lapses - 0.15 * m.helps, 0, 1);
   }
-  function starsFor(score) { return score >= 0.85 ? 5 : score >= 0.7 ? 4 : score >= 0.5 ? 3 : score >= 0.3 ? 2 : 1; }
+  // Each try gets 1 to 10 stars. Every step of the old 5-star scale is split in two,
+  // so 9-10 stars here is what used to be 5 stars.
+  var STAR_CUTS = [0.93, 0.85, 0.775, 0.7, 0.6, 0.5, 0.4, 0.3, 0.15];
+  function starsFor(score) {
+    for (var i = 0; i < STAR_CUTS.length; i++) if (score >= STAR_CUTS[i]) return 10 - i;
+    return 1;
+  }
+  function avgStars(scores) { return scores.reduce(function (a, b) { return a + starsFor(b); }, 0) / scores.length; }
   function rating(key) {
     var st = data.stats[key];
     if (!st || !st.recent.length) return null;
     var r = st.recent.slice(-5);
-    var avg = r.reduce(function (a, b) { return a + starsFor(b); }, 0) / r.length;
+    var avg = avgStars(r);
     var trend = 0;
     if (st.recent.length >= 6) {
       var last = st.recent.slice(-3), prev = st.recent.slice(-6, -3);
@@ -389,10 +404,9 @@
     if (data.levelHist.length > 10) data.levelHist = data.levelHist.slice(-10);
     if (S.levelMode === 'fixed') return;
     var h = data.levelHist;
-    var avg = function (a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; };
-    if (h.length >= LEVEL_UP.turns && avg(h.slice(-LEVEL_UP.turns)) >= LEVEL_UP.avg && data.level < LEVELS.length) {
+    if (h.length >= LEVEL_UP.turns && avgStars(h.slice(-LEVEL_UP.turns)) >= LEVEL_UP.stars && data.level < LEVELS.length) {
       data.nextLevel = data.level + 1;
-    } else if (h.length >= LEVEL_DOWN.turns && avg(h.slice(-LEVEL_DOWN.turns)) < LEVEL_DOWN.avg && data.level > 1) {
+    } else if (h.length >= LEVEL_DOWN.turns && avgStars(h.slice(-LEVEL_DOWN.turns)) < LEVEL_DOWN.stars && data.level > 1) {
       data.nextLevel = data.level - 1;
     } else {
       data.nextLevel = data.level;
@@ -486,7 +500,7 @@
       }
     } else if (S.order === 'weak') {
       // More turns on the characters with the fewest stars; untried ones count as weak.
-      var weights = keys.map(function (k) { var r = rating(k); return r ? Math.pow(6 - r.stars, 2) : 16; });
+      var weights = keys.map(function (k) { var r = rating(k); return r ? Math.pow((12 - r.stars) / 2, 2) : 16; });
       while (q.length < total) {
         var sum = weights.reduce(function (a, b) { return a + b; }, 0), x = Math.random() * sum;
         for (i = 0; i < keys.length; i++) { x -= weights[i]; if (x <= 0) break; }
@@ -872,7 +886,7 @@
       }
       return;
     }
-    // Character finished. Traced after a free-writing attempt counts as help (at most ~3 stars).
+    // Character finished. Traced after a free-writing attempt counts as help (at most 5 of 10 stars).
     var sc = scoreAttempt(c.m, tolUnits());
     finishChar(c, c.assist ? Math.min(sc * 0.6, 0.55) : sc);
   }
@@ -1172,7 +1186,7 @@
   // ---------------------------------------------------------------- grown-ups
   function starRow(n) {
     var full = Math.round(n * 2) / 2, html = '';
-    for (var i = 1; i <= 5; i++) html += '<i class="' + (full >= i ? 'f' : full >= i - 0.5 ? 'h' : '') + '"></i>';
+    for (var i = 1; i <= 10; i++) html += '<i class="' + (full >= i ? 'f' : full >= i - 0.5 ? 'h' : '') + '"></i>';
     return html;
   }
   function fmtDate(t) {
@@ -1188,24 +1202,26 @@
     keys.forEach(function (key) {
       var r = rating(key);
       var li = document.createElement('li');
-      li.className = 'perf' + (r ? ' b' + Math.max(1, Math.min(5, Math.round(r.stars))) : ' none');
-      li.innerHTML = '<span class="ch"></span><span class="st"></span><span class="meta"></span>';
+      // Green 7-10 stars, yellow 5-6, red 1-4
+      li.className = 'perf' + (r ? (r.stars >= 7 ? ' b4' : r.stars >= 5 ? ' b3' : ' b2') : ' none');
+      li.innerHTML = '<span class="ch"></span><span class="sc"></span><span class="st"></span><span class="meta"></span>';
       li.querySelector('.ch').textContent = key;
       if (r) {
         rated.push({ key: key, stars: r.stars });
+        li.querySelector('.sc').innerHTML = r.stars.toFixed(1) + '<small> / 10</small>' + (r.trend > 0 ? ' <em>↑</em>' : r.trend < 0 ? ' <em>↓</em>' : '');
         li.querySelector('.st').innerHTML = starRow(r.stars);
         var pr = (data.paper[key] || []).filter(function (x) { return x.r > 0; }).slice(-5);
-        var paperTxt = pr.length ? ' · paper ' + (pr.reduce(function (a, x) { return a + x.r; }, 0) / pr.length).toFixed(1) + '★' : '';
-        li.querySelector('.meta').textContent = r.stars.toFixed(1) + ' · ' + r.tries + (r.tries === 1 ? ' try' : ' tries') + (r.trend > 0 ? ' · ↑' : r.trend < 0 ? ' · ↓' : '') + paperTxt;
+        var paperTxt = pr.length ? ' · paper ' + Math.round(pr.reduce(function (a, x) { return a + x.r; }, 0) / pr.length * 10) / 10 + '★' : '';
+        li.querySelector('.meta').textContent = r.tries + (r.tries === 1 ? ' try' : ' tries') + paperTxt;
       } else {
+        li.querySelector('.sc').innerHTML = '<small>not tried yet</small>';
         li.querySelector('.st').innerHTML = starRow(0);
-        li.querySelector('.meta').textContent = 'not tried yet';
       }
       grid.appendChild(li);
     });
     rated.sort(function (a, b) { return b.stars - a.stars; });
-    var good = rated.filter(function (r) { return r.stars >= 4; }).slice(0, 5).map(function (r) { return r.key; });
-    var weak = rated.slice().reverse().filter(function (r) { return r.stars < 3.5; }).slice(0, 5).map(function (r) { return r.key; });
+    var good = rated.filter(function (r) { return r.stars >= 7; }).slice(0, 5).map(function (r) { return r.key; });
+    var weak = rated.slice().reverse().filter(function (r) { return r.stars < 7; }).slice(0, 5).map(function (r) { return r.key; });
     $('perf-good').textContent = good.length ? good.join('  ') : '–';
     $('perf-weak').textContent = weak.length ? weak.join('  ') : '–';
 
@@ -1224,13 +1240,13 @@
       ladder.appendChild(li);
     });
     var h = data.levelHist.slice(-LEVEL_UP.turns);
-    var good5 = h.filter(function (s) { return s >= LEVEL_UP.avg; }).length;
+    var good5 = h.filter(function (s) { return starsFor(s) >= LEVEL_UP.stars; }).length;
     var msg;
     if (S.levelMode === 'fixed') msg = 'Level is fixed by you. Switch to Automatic to let it grow with him.';
     else if (data.nextLevel > data.level) msg = 'Ready to move up: the next session starts at Level ' + data.nextLevel + '.';
     else if (data.nextLevel < data.level) msg = 'Next session steps back to Level ' + data.nextLevel + ' to keep it fun.';
     else if (lv === LEVELS.length) msg = 'Top level reached.';
-    else msg = 'Moves up after 5 turns averaging 4★ or more. Recent turns: ' + (h.length ? h.map(function (s) { return starsFor(s) + '★'; }).join(' ') : 'none yet') + ' (' + good5 + ' strong).';
+    else msg = 'Moves up after 5 turns averaging 8★ or more (out of 10). Recent turns: ' + (h.length ? h.map(function (s) { return starsFor(s) + '★'; }).join(' ') : 'none yet') + ' (' + good5 + ' strong).';
     $('level-msg').textContent = msg;
     $('fixed-level-field').hidden = S.levelMode !== 'fixed';
     var fl = $('fixed-level');
@@ -1297,7 +1313,7 @@
   var paperSel = [], paperRating = 0;
   function weakest(n) {
     var keys = setKeys();
-    var scored = keys.map(function (k) { var r = rating(k); return { k: k, s: r ? r.stars : 2.5 }; });
+    var scored = keys.map(function (k) { var r = rating(k); return { k: k, s: r ? r.stars : 5 }; });
     scored.sort(function (a, b) { return a.s - b.s; });
     return scored.slice(0, n).map(function (x) { return x.k; }).sort(function (a, b) { return keys.indexOf(a) - keys.indexOf(b); });
   }
@@ -1318,7 +1334,7 @@
     });
     var rate = $('paper-rate');
     rate.innerHTML = '';
-    for (var n = 1; n <= 5; n++) (function (n) {
+    for (var n = 1; n <= 10; n++) (function (n) {
       var b = document.createElement('button');
       b.className = n <= paperRating ? 'on' : '';
       b.setAttribute('aria-label', n + (n === 1 ? ' star' : ' stars'));
