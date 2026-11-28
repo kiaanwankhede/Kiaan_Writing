@@ -71,9 +71,9 @@
 
   var DEFAULTS = {
     settings: {
-      name: '', set: 'numbers', order: 'sequence', turns: '5',
+      name: '', set: 'numbers', order: 'steps', turns: '5',
       levelMode: 'auto', fixedLevel: '1',
-      demo: 'on', voice: 'spell', chime: 'on', calm: prefersReduced ? 'on' : 'off', palm: 'on', sheet: 'weak', restart: 'number', statsRange: '30'
+      demo: 'fade', voice: 'spell', chime: 'on', calm: prefersReduced ? 'on' : 'off', palm: 'on', sheet: 'weak', restart: 'number', statsRange: '30'
     },
     level: 1, nextLevel: 1, levelHist: [],
     stats: {},      // key -> { tries, recent: [scores 0..1], best, last }
@@ -119,6 +119,14 @@
       (data.paper[k] || []).forEach(function (x) { if (x.r > 0) x.r = Math.min(10, x.r * 2); });
     });
     data.starsV = 10;
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+  // Version 0.7: "Show me" fades instead of playing before every stroke, and numbers
+  // are introduced step by step. Installs that still have the old defaults move over once.
+  if (data.prefsV !== 7) {
+    if (S.demo === 'on') S.demo = 'fade';
+    if (S.order === 'sequence') S.order = 'steps';
+    data.prefsV = 7;
     try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {}
   }
   // Daily totals for the Stats panel. Older versions only kept finished sessions,
@@ -361,6 +369,67 @@
     return b;
   }
 
+  // ---------------------------------------------------------------- formation check
+  // The shape check alone accepts a number drawn from the wrong end, or a mirror
+  // image (a backwards 2 or 4). Writing habits form at the free-writing levels, so
+  // he must also face the right way, go the right way and start in the right place.
+  // If not, nothing "fails": the path appears and they trace it together.
+  var TPLM = {};
+  var ASYM = {};
+  function asym(key) { return key in ASYM ? ASYM[key] : (ASYM[key] = pMatch(tpl(key), tplMirror(key))); }
+  function tplMirror(key) { return TPLM[key] || (TPLM[key] = tpl(key).map(function (p) { return [-p[0], p[1]]; })); }
+  function nearestTangent(tstrokes, p) {
+    var best = Infinity, tg = [0, 0];
+    tstrokes.forEach(function (st) {
+      var P = st.pts;
+      for (var i = 0; i < P.length; i++) {
+        var dx0 = P[i][0] - p[0], dy0 = P[i][1] - p[1], d = dx0 * dx0 + dy0 * dy0;
+        if (d < best) {
+          best = d;
+          var a = P[Math.max(0, i - 2)], b = P[Math.min(P.length - 1, i + 2)];
+          var dx = b[0] - a[0], dy = b[1] - a[1], n = Math.hypot(dx, dy) || 1;
+          tg = [dx / n, dy / n];
+        }
+      }
+    });
+    return tg;
+  }
+  function formationCheck(c, strokes, cand, dT) {
+    var out = { dT: dT, dM: pMatch(cand, tplMirror(c.key)), agree: 1, worst: 1, startD: 0, issue: null };
+    // Facing the wrong way: the mirror image fits clearly better than the number itself.
+    // Only for shapes that look different in a mirror (not 8).
+    if (asym(c.key) >= 0.6 && out.dM < dT * 0.8) { out.issue = 'mirrored'; return out; }
+    // Fit his writing onto the model's box (same height, centred), then compare.
+    var bt = bbox(c.strokes.map(function (s) { return s.pts; })), bc = bbox(strokes);
+    var th = (bt.maxy - bt.miny) || 1, chh = (bc.maxy - bc.miny) || 1, tw = bt.maxx - bt.minx, cw = bc.maxx - bc.minx;
+    var sy = th / chh, sx = (tw > th * 0.3 && cw > chh * 0.3) ? clamp(tw / cw, sy * 0.6, sy * 1.6) : sy;
+    var tcx = (bt.minx + bt.maxx) / 2, ccx = (bc.minx + bc.maxx) / 2;
+    var mapped = strokes.map(function (s) { return s.map(function (p) { return [tcx + (p[0] - ccx) * sx, bt.miny + (p[1] - bc.miny) * sy]; }); });
+    // Direction: each piece of his line against the direction of the nearest part of the model.
+    var total = pLen(mapped), sum = 0, lenSum = 0, worst = 1;
+    mapped.forEach(function (s0) {
+      if (s0.length < 2) return;
+      var s = resample(s0, 3).pts, a = 0, L = 0;
+      for (var i = 1; i < s.length; i++) {
+        var dx = s[i][0] - s[i - 1][0], dy = s[i][1] - s[i - 1][1], d = Math.hypot(dx, dy);
+        if (!d) continue;
+        var tg = nearestTangent(c.strokes, [(s[i][0] + s[i - 1][0]) / 2, (s[i][1] + s[i - 1][1]) / 2]);
+        a += dx * tg[0] + dy * tg[1]; L += d;
+      }
+      if (!L) return;
+      sum += a; lenSum += L;
+      if (L >= 0.2 * total) worst = Math.min(worst, a / L);
+    });
+    out.agree = lenSum ? sum / lenSum : 1; out.worst = worst;
+    // 8 starts and ends at the top, so either way round (or two circles) is fine at this age.
+    if (c.key !== '8' && (worst < -0.3 || out.agree < -0.1)) { out.issue = 'backwards'; return out; }
+    // Start: the very first touch should be near the start of one of the model's strokes.
+    var f = mapped[0][0];
+    out.startD = Math.min.apply(null, c.strokes.map(function (s) { return dist(f, s.pts[0]); }));
+    if (c.key === '8' ? f[1] > bt.miny + th * 0.5 : out.startD > 30) out.issue = 'start';
+    return out;
+  }
+
   // ---------------------------------------------------------------- scoring
   // One attempt at one character -> 0..1. Based on how close the pen stayed to
   // the path (compared with the room allowed at this level), how often it
@@ -405,7 +474,8 @@
   // ---------------------------------------------------------------- daily totals
   // One small record per day: sessions, turns, the sum of turn stars, writing time,
   // pictures, paper turns, the level, and per character
-  // [tries, sum of stars, restarts, wander-offs, "Show me" help, milliseconds].
+  // [tries, sum of stars, restarts, wander-offs, "Show me" help, milliseconds,
+  //  tries on his own (no demo or help), wrong-way attempts]. The last two are new in 0.7.
   function dayKey(t) {
     var d = new Date(t);
     return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
@@ -516,6 +586,40 @@
   // ---------------------------------------------------------------- session
   var session = null;
   function setKeys() { return (SETS[S.set] || SETS.numbers).keys.slice(); }
+  // Step by step: numbers come in developmental order, by the strokes they need: a straight
+  // line (1), then circles and curves (9 3 6, with 9 and 6 kept apart because they look
+  // alike), then slanted lines (7 2), then two-stroke numbers (5 4), and the crossing 8 last.
+  // Letters: straight lines, then curves, then diagonals. He starts with two, and the next
+  // one is added between sessions once every current one averages 7 stars or more.
+  var INTRO = {
+    numbers: ['1', '9', '3', '6', '7', '2', '5', '4', '8'],
+    letters: ['L', 'T', 'I', 'E', 'F', 'H', 'C', 'O', 'U', 'D', 'P', 'B', 'J', 'G', 'S', 'Q', 'R', 'V', 'A', 'N', 'M', 'K', 'W', 'X', 'Y', 'Z']
+  };
+  function introOrder() {
+    var keys = setKeys(), out = [];
+    INTRO.numbers.concat(INTRO.letters).forEach(function (k) { if (keys.indexOf(k) !== -1 && out.indexOf(k) === -1) out.push(k); });
+    keys.forEach(function (k) { if (out.indexOf(k) === -1) out.push(k); });
+    return out;
+  }
+  function readyKey(k) { var r = rating(k); return !!r && r.tries >= 3 && r.stars >= 7; }
+  function stepCount() {
+    var order = introOrder();
+    if (!data.unlock) data.unlock = {};
+    var n = data.unlock[S.set];
+    if (!n) {
+      // First time: keep what he has already mastered, plus the next one.
+      n = 2;
+      while (n < order.length && order.slice(0, n).every(readyKey)) n++;
+      data.unlock[S.set] = n;
+    }
+    return Math.min(n, order.length);
+  }
+  function practiceKeys() { return S.order === 'steps' ? introOrder().slice(0, stepCount()) : setKeys(); }
+  function maybeUnlock() {
+    if (S.order !== 'steps') return;
+    var order = introOrder(), n = stepCount();
+    if (n < order.length && order.slice(0, n).every(readyKey)) data.unlock[S.set] = n + 1;
+  }
   function pickChars(total) {
     var keys = setKeys(), q = [], i;
     if (S.order === 'shuffle') {
@@ -526,9 +630,16 @@
         if (q.length && q[q.length - 1] === k && keys.length > 1) { bag.push(k); continue; }
         q.push(k);
       }
-    } else if (S.order === 'weak') {
+    } else if (S.order === 'weak' || S.order === 'steps') {
       // More turns on the characters with the fewest stars; untried ones count as weak.
-      var weights = keys.map(function (k) { var r = rating(k); return r ? Math.pow((12 - r.stars) / 2, 2) : 16; });
+      // Step by step: only the ones introduced so far, with extra turns on the newest
+      // (mixed in with the ones he already knows).
+      if (S.order === 'steps') keys = practiceKeys();
+      var newest = keys[keys.length - 1];
+      var weights = keys.map(function (k) {
+        var r = rating(k), w = r ? Math.pow((12 - r.stars) / 2, 2) : 16;
+        return S.order === 'steps' && k === newest && (!r || r.tries < 10) ? Math.max(w, 9) : w;
+      });
       while (q.length < total) {
         var sum = weights.reduce(function (a, b) { return a + b; }, 0), x = Math.random() * sum;
         for (i = 0; i < keys.length; i++) { x -= weights[i]; if (x <= 0) break; }
@@ -546,12 +657,13 @@
   function startSession() {
     unlockSpeech();
     applyPendingLevel();
+    maybeUnlock();
     var lv = currentLevel(), L = LEVELS[lv - 1];
     var turns = parseInt(S.turns, 10) || 5;
     var chars = pickChars(turns * L.n);
     var queue = [];
     for (var t = 0; t < turns; t++) queue.push(chars.slice(t * L.n, t * L.n + L.n));
-    session = { level: lv, queue: queue, idx: 0, doneTurn: false, turnScores: [] };
+    session = { level: lv, queue: queue, idx: 0, doneTurn: false, turnScores: [], own: [] };
     dayRec().sess++;
     save();
     startTurn();
@@ -561,7 +673,7 @@
     for (var i = 0; i < session.queue.length; i++) {
       var li = document.createElement('li');
       var on = i < session.idx || (i === session.idx && session.doneTurn);
-      li.className = on ? 'on' : (i === session.idx ? 'now' : '');
+      li.className = on ? 'on' + (session.own && session.own[i] ? ' super' : '') : (i === session.idx ? 'now' : '');
       li.innerHTML = '<img src="' + UI + 'star.svg" alt="">';
       el.appendChild(li);
     }
@@ -578,7 +690,7 @@
       strokes: SHAPES[key].strokes.map(function (s) { return resample(s, 1); }),
       si: 0, prog: 0, done: false,
       free: L.guide === 'free' || L.guide === 'memory', ink: [], assist: false, evalTimer: null,
-      m: { devSum: 0, devN: 0, lapses: 0, helps: 0, t0: 0, presSum: 0, presN: 0 }
+      m: { devSum: 0, devN: 0, lapses: 0, helps: 0, shown: 0, wrongWay: 0, t0: 0, presSum: 0, presN: 0 }
     };
   }
   function startTurn() {
@@ -600,6 +712,30 @@
     beginChar(450);
   }
   function cur() { return T.chars[T.ci]; }
+  // "Show me" fades (time delay). It plays straight away the first two times he meets a
+  // character at a stage, and at Levels 1-3. Later he gets a few seconds to start on his
+  // own before it plays (3 s at Levels 4-9, 5 s at 10-17). From Level 18 it plays only
+  // when he taps "Show me", is stuck for 7 seconds, or after 3 restarts.
+  // Returns the wait in ms, or null for no automatic demo.
+  function autoDemoDelay(c) {
+    if (S.demo === 'off') return null;
+    if (S.demo === 'on') return 0;
+    var lv = session.level, st = data.stats[c.key];
+    var seen = st && st.stage ? st.stage[T.L.stage] || 0 : 0;
+    if (seen < 2 || lv <= 3) return 0;
+    if (lv <= 9) return 3000;
+    if (lv <= 17) return 5000;
+    return null;
+  }
+  function autoDemo(c, after) {
+    var dl = autoDemoDelay(c), ci = T.ci, si = c.si;
+    if (dl == null) return;
+    setTimeout(function () {
+      if (!T || T.done || T.tracking || T.demo || T.ci !== ci || cur() !== c || c.done || c.si !== si || c.prog > 0 || (c.free && !c.assist && c.ink.length)) return;
+      c.m.shown++;
+      playDemo(false);
+    }, after + dl);
+  }
   function beginChar(delay) {
     var c = cur(), key = c.key, ci = T.ci;
     sayName(key);
@@ -608,9 +744,7 @@
       if (S.voice === 'off' || !hasTTS) $('trace-label').textContent = /[0-9]/.test(key) ? 'Write \u25CF'.replace('\u25CF', new Array(+key + 1).join('\u25CF')) : 'Write ' + key;
       return;
     }
-    if (S.demo === 'on') setTimeout(function () {
-      if (T && T.ci === ci && cur().key === key && !T.tracking && c.prog === 0 && c.si === 0) playDemo(false);
-    }, delay || 450);
+    autoDemo(c, delay || 450);
   }
 
   function layout() {
@@ -856,6 +990,7 @@
   }
   // Checks the shape once he pauses. Recognised: success. Not recognised: the path
   // appears and he traces it, so every turn still ends in success (errorless).
+  var lastEval = null;
   function evaluateFree(c) {
     if (!T || cur() !== c || c.done || T.tracking) return;
     var strokes = c.ink.map(function (s) { return s.map(function (p) { return [p[0], p[1]]; }); }).filter(function (s) { return s.length > 1; });
@@ -863,7 +998,11 @@
     var cand = pCloud(strokes), dT = pMatch(cand, tpl(c.key)), best = Infinity;
     setKeys().forEach(function (k) { if (k !== c.key) best = Math.min(best, pMatch(cand, tpl(k))); });
     var b = bbox(strokes), hgt = b.maxy - b.miny, big = Math.max(hgt, b.maxx - b.minx);
-    if (dT <= 1.6 && dT <= best * 1.2 && big >= 22) {
+    var ok = dT <= 1.6 && dT <= best * 1.2 && big >= 22;
+    var form = ok ? formationCheck(c, strokes, cand, dT) : null;
+    lastEval = { key: c.key, dT: dT, best: best, ok: ok, form: form };
+    if (form && form.issue) c.m.wrongWay = (c.m.wrongWay || 0) + 1;
+    if (ok && !form.issue) {
       var inLines = 0, total = 0;
       strokes.forEach(function (s) { s.forEach(function (p) { total++; if (p[1] >= 0 && p[1] <= 100) inLines++; }); });
       var shape = clamp(1 - (dT - 0.5) / 1.1, 0, 1), size = clamp(1 - Math.abs(hgt - 80) / 80, 0, 1);
@@ -875,7 +1014,7 @@
       T.lastProgressAt = performance.now();
       $('trace-label').textContent = "Let's trace it together";
       if (S.voice !== 'off') { stopSpeech(); speak("Let's trace it together"); }
-      if (S.demo === 'on') setTimeout(function () { if (T && cur() === c && !T.tracking) playDemo(false); }, 900);
+      if (S.demo !== 'off') setTimeout(function () { if (T && cur() === c && !T.tracking) playDemo(false); }, 900);
     }
   }
 
@@ -884,9 +1023,15 @@
     c.done = true;
     c.score = score;
     recordAttempt(c.key, c.score, c.m);
-    var dc = dayRec(), a = dc.c[c.key] || (dc.c[c.key] = [0, 0, 0, 0, 0, 0]);
+    var stt = data.stats[c.key];
+    stt.stage = stt.stage || {};
+    stt.stage[T.L.stage] = (stt.stage[T.L.stage] || 0) + 1;
+    var dc = dayRec(), a = dc.c[c.key] || (dc.c[c.key] = [0, 0, 0, 0, 0, 0, 0, 0]);
+    while (a.length < 8) a.push(0);
     a[0]++; a[1] += starsFor(score); a[2] += c.restarts || 0; a[3] += c.m.lapses; a[4] += c.m.helps;
     a[5] += Math.min(300000, Math.round(performance.now() - (c.m.t0 || performance.now())));
+    a[6] += !c.m.shown && !c.m.helps && !c.assist ? 1 : 0;   // on his own: no demo, no help
+    a[7] += c.m.wrongWay || 0;                                 // started wrong, backwards or mirrored
     T.tracking = false;
     if (T.ci < T.chars.length - 1) {
       chime('char');
@@ -914,7 +1059,7 @@
       var keepGoing = T.tracking && dist(p, c.strokes[c.si].pts[0]) <= startTolUnits();
       if (!keepGoing) {
         T.tracking = false;
-        if (S.demo === 'on') setTimeout(function () { if (T && !T.tracking && !T.done && cur() === c && c.prog === 0) playDemo(false); }, 350);
+        autoDemo(c, 350);
       }
       return;
     }
@@ -923,7 +1068,20 @@
     finishChar(c, c.assist ? Math.min(sc * 0.6, 0.55) : sc);
   }
 
+  // Spoken praise the moment a turn is finished, before the picture's word. A turn with
+  // no "Show me" and no help gets "All by yourself!" and a super star in his star row
+  // (differential reinforcement of independent work). Still exactly one picture.
+  var PRAISE = ['Well done!', 'Great writing!', 'You did it!'], praiseN = 0, praiseP = Promise.resolve();
+  function praise(own) {
+    if (S.voice === 'off' || !hasTTS) return Promise.resolve();
+    stopSpeech();
+    return speak(own ? 'All by yourself!' : PRAISE[praiseN++ % PRAISE.length]);
+  }
   function turnDone() {
+    var own = T.chars.every(function (c) { return !c.m.shown && !c.m.helps && !c.assist; });
+    session.own[session.idx] = own;
+    T.own = own;
+    praiseP = praise(own);
     var sum = 0;
     T.chars.forEach(function (c) { sum += c.score; });
     var turnScore = sum / T.chars.length;
@@ -1142,14 +1300,10 @@
       var r = (g === 'light' ? 6 : g === 'dotted' ? 5.5 : 7.5) + pulse + nudge;
       ctx.fillStyle = ch.prog === 0 ? C.start : C.ink;
       ctx.beginPath(); ctx.arc(head[0], head[1], r, 0, Math.PI * 2); ctx.fill();
+      // A plain dot: no stroke numbers, because he is learning these very numerals.
+      // Only the next stroke's dot is shown, so the order is still clear.
       ctx.fillStyle = '#fff';
-      if (g === 'strong' && ch.prog === 0 && ch.strokes.length > 1) {
-        ctx.font = '900 8px Nunito, ui-rounded, system-ui, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(String(ch.si + 1), head[0], head[1] + 0.4);
-      } else {
-        ctx.beginPath(); ctx.arc(head[0], head[1], 2.4, 0, Math.PI * 2); ctx.fill();
-      }
+      ctx.beginPath(); ctx.arc(head[0], head[1], 2.4, 0, Math.PI * 2); ctx.fill();
       // Pen hover ring and a soft halo under the pen
       if (T.hover && !T.tracking) {
         ctx.strokeStyle = 'rgba(66, 99, 235, .45)'; ctx.lineWidth = 1.2;
@@ -1162,7 +1316,7 @@
     }
 
     // Stuck for a while? Show the way again (only when "Show me" is on).
-    if (S.demo === 'on' && !T.done && !T.tracking && !T.demo && now - T.lastProgressAt > 7000) {
+    if (S.demo !== 'off' && !T.done && !T.tracking && !T.demo && now - T.lastProgressAt > 7000) {
       T.lastProgressAt = now;
       playDemo(true);
     }
@@ -1194,7 +1348,8 @@
     if (S.calm !== 'on') { btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop'); }
     buildTiles($('reward-tiles'), rw.w);
     show('reward');
-    setTimeout(function () { if (current === 'reward') playWord($('reward-tiles'), rw.w); }, 350);
+    var pp = praiseP;
+    setTimeout(function () { pp.then(function () { if (current === 'reward' && shownReward === rw) playWord($('reward-tiles'), rw.w); }); }, 350);
   }
   $('reward-pic').addEventListener('click', function () { if (shownReward) playWord($('reward-tiles'), shownReward.w); });
   $('btn-again').addEventListener('click', function () { if (session.paper) { show('home'); return; } startTurn(); });
@@ -1214,7 +1369,7 @@
     save();
     var row = $('done-stars');
     row.innerHTML = '';
-    for (var i = 0; i < session.queue.length; i++) row.innerHTML += '<li class="on"><img src="' + UI + 'star.svg" alt=""></li>';
+    for (var i = 0; i < session.queue.length; i++) row.innerHTML += '<li class="on' + (session.own[i] ? ' super' : '') + '"><img src="' + UI + 'star.svg" alt=""></li>';
     chime('turn');
     show('done');
   }
@@ -1252,7 +1407,7 @@
         var paperTxt = pr.length ? ' · paper ' + Math.round(pr.reduce(function (a, x) { return a + x.r; }, 0) / pr.length * 10) / 10 + '★' : '';
         li.querySelector('.meta').textContent = r.tries + (r.tries === 1 ? ' try' : ' tries') + paperTxt;
       } else {
-        li.querySelector('.sc').innerHTML = '<small>not tried yet</small>';
+        li.querySelector('.sc').innerHTML = '<small>' + (S.order === 'steps' && practiceKeys().indexOf(key) === -1 ? 'comes later' : 'not tried yet') + '</small>';
         li.querySelector('.st').innerHTML = starRow(0);
       }
       grid.appendChild(li);
@@ -1321,6 +1476,15 @@
       for (var j = 0; j < btns.length; j++) btns[j].setAttribute('aria-pressed', btns[j].dataset.value === String(S[setting]) ? 'true' : 'false');
     }
     $('name-input').value = S.name || '';
+    var info = $('steps-info');
+    info.hidden = S.order !== 'steps';
+    if (S.order === 'steps') {
+      var order = introOrder(), n = stepCount(), now = order.slice(0, n);
+      var ready = now.filter(readyKey).length;
+      info.textContent = 'Practising now: ' + now.join(' ') + '. ' + (n < order.length
+        ? 'Next: ' + order[n] + ', added once each of these averages 7★ or more (' + ready + ' of ' + now.length + ' there).'
+        : 'All of them are in practice.') + ' Order: ' + order.join(' ') + '.';
+    }
   }
 
   function renderPressure(keys) {
@@ -1368,12 +1532,13 @@
       if (d.turns || d.paper) t.practised++;
       Object.keys(d.c || {}).forEach(function (ch) {
         if (keys && keys.indexOf(ch) === -1) return;
-        var a = t.c[ch] || (t.c[ch] = [0, 0, 0, 0, 0, 0]);
-        for (var i = 0; i < 6; i++) a[i] += d.c[ch][i];
+        var a = t.c[ch] || (t.c[ch] = [0, 0, 0, 0, 0, 0, 0, 0, 0]), src = d.c[ch];
+        for (var i = 0; i < 8; i++) a[i] += src[i] || 0;
+        if (src.length >= 8) a[8] += src[0];   // tries recorded with "on his own" (0.7 and later)
       });
     });
-    t.tries = 0; t.restarts = 0;
-    Object.keys(t.c).forEach(function (ch) { t.tries += t.c[ch][0]; t.restarts += t.c[ch][2]; });
+    t.tries = 0; t.restarts = 0; t.own = 0; t.ownN = 0; t.wrong = 0;
+    Object.keys(t.c).forEach(function (ch) { var a = t.c[ch]; t.tries += a[0]; t.restarts += a[2]; t.own += a[6]; t.ownN += a[8]; t.wrong += a[7]; });
     return t;
   }
   function statsPeriod() {
@@ -1515,7 +1680,7 @@
     var tiles = [
       ['Days practised', cur.practised + '', periodTxt],
       ['Writing time', cur.ms ? fmtMin(cur.ms) : '0 min', cur.practised && cur.ms ? 'about ' + fmtMin(cur.ms / cur.practised) + ' on a day he practised' : 'time spent writing in turns'],
-      [noun + ' written', cur.tries + '', 'traced or written on the tablet'],
+      [noun + ' written', cur.tries + '', cur.ownN ? Math.round(cur.own / cur.ownN * 100) + '% on his own, with no demo or help' : 'traced or written on the tablet'],
       ['Pictures earned', cur.pics + '', cur.paper ? 'including ' + cur.paper + ' for writing on paper' : 'one after every turn'],
       ['Average stars', avgSt == null ? '–' : fmt1(avgSt) + '<small> / 10</small>', delta(avgSt, prevSt, true, P.span) || 'per turn'],
       ['Restarts per ' + noun.toLowerCase().replace(/s$/, ''), rpn == null ? '–' : fmt1(rpn), delta(rpn, prevRpn, false, P.span) || 'pen lifted or left the path']
@@ -1559,19 +1724,21 @@
       var a = cur.c[k], b = prev && prev.c[k];
       var pr = (data.paper[k] || []).filter(function (x) { return x.r > 0 && dayKey(x.at) >= P.days[0]; });
       var paper = pr.length ? fmt1(pr.reduce(function (s, x) { return s + x.r; }, 0) / pr.length) + ' ★' : '–';
-      if (!a || !a[0]) return '<tr class="none"><th scope="row">' + esc(k) + '</th><td colspan="6">not written in this period</td><td>' + paper + '</td></tr>';
+      if (!a || !a[0]) return '<tr class="none"><th scope="row">' + esc(k) + '</th><td colspan="7">' + (S.order === 'steps' && practiceKeys().indexOf(k) === -1 ? 'comes later (step by step)' : 'not written in this period') + '</td><td>' + paper + '</td></tr>';
       var st = a[1] / a[0], pst = b && b[0] ? b[1] / b[0] : null;
       var ch = pst == null ? '–' : Math.abs(st - pst) < 0.05 ? 'same' : (st > pst ? '▲ ' : '▼ ') + fmt1(Math.abs(st - pst));
       var chCls = pst == null || Math.abs(st - pst) < 0.05 ? '' : st > pst ? 'good' : 'bad';
       return '<tr><th scope="row">' + esc(k) + '</th><td class="n">' + a[0] + '</td>' +
         '<td><span class="meter" role="img" aria-label="' + fmt1(st) + ' stars out of 10"><i><b style="width:' + (st * 10) + '%"></b></i><span class="n">' + fmt1(st) + '</span></span></td>' +
         '<td class="n ' + chCls + '">' + ch + '</td>' +
-        '<td class="n">' + fmt1(a[2] / a[0]) + '</td><td class="n">' + Math.round(a[4] / a[0] * 100) + '%</td>' +
+        '<td class="n">' + (a[8] ? Math.round(a[6] / a[8] * 100) + '%' : '–') + '</td>' +
+        '<td class="n">' + fmt1(a[2] / a[0]) + '</td><td class="n">' + (a[7] || '–') + '</td>' +
         '<td class="n">' + Math.round(a[5] / a[0] / 1000) + ' s</td><td class="n">' + paper + '</td></tr>';
     });
     $('stats-chars').innerHTML = '<thead><tr><th scope="col">' + (noun === 'Numbers' ? 'Number' : 'Character') + '</th><th scope="col">Tries</th><th scope="col">Stars</th><th scope="col">' +
-      (P.span ? 'Change' : '') + '</th><th scope="col">Restarts per try</th><th scope="col">"Show me" help</th><th scope="col">Time each</th><th scope="col">Paper</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
-    $('stats-chars-cap').textContent = P.span ? 'Change compares the stars with the ' + P.span + ' days before.' : '';
+      (P.span ? 'Change' : '') + '</th><th scope="col">On his own</th><th scope="col">Restarts</th><th scope="col">Wrong way</th><th scope="col">Time</th><th scope="col">Paper</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
+    $('stats-chars-cap').textContent = (P.span ? 'Change compares the stars with the ' + P.span + ' days before. ' : '') +
+      'On his own: written with no "Show me" demo and no help. Restarts: per try. Wrong way: in free writing, started in the wrong place, drawn backwards or as a mirror image; the app then showed him the right way. Mirror-image numbers are common in young children and usually fade by about age 7.';
 
     // Day by day
     var dayRows = P.days.slice().reverse().filter(function (k) { var d = data.days[k]; return d && (d.turns || d.paper); }).map(function (k) {
@@ -1587,7 +1754,7 @@
   // ---------------------------------------------------------------- paper practice
   var paperSel = [], paperRating = 0;
   function weakest(n) {
-    var keys = setKeys();
+    var keys = practiceKeys();
     var scored = keys.map(function (k) { var r = rating(k); return { k: k, s: r ? r.stars : 5 }; });
     scored.sort(function (a, b) { return a.s - b.s; });
     return scored.slice(0, n).map(function (x) { return x.k; }).sort(function (a, b) { return keys.indexOf(a) - keys.indexOf(b); });
@@ -1627,7 +1794,8 @@
     save();
     unlockSpeech();
     paperSel = []; paperRating = 0;
-    session = { paper: true, level: currentLevel(), queue: [keys], idx: 0, doneTurn: false, turnScores: [] };
+    session = { paper: true, level: currentLevel(), queue: [keys], idx: 0, doneTurn: false, turnScores: [], own: [] };
+    praiseP = praise(false);
     showReward();
   });
 
@@ -1647,7 +1815,7 @@
     return '<svg viewBox="-6 0 112 100" xmlns="http://www.w3.org/2000/svg">' + lines + body + '</svg>';
   }
   function buildSheet() {
-    var keys = S.sheet === 'all' ? setKeys().slice(0, 9) : weakest(6);
+    var keys = S.sheet === 'all' ? practiceKeys().slice(0, 9) : weakest(6);
     var name = (S.name || '').trim();
     var html = '<div class="sheet-head"><h1>Learn2Write practice</h1><span>' + new Date().toLocaleDateString() + '</span></div>' +
       '<p class="sheet-name">Name: ' + (name ? name.replace(/[<>&]/g, '') : '______________________') + '</p>';
@@ -1721,6 +1889,11 @@
 
   // Small hook used by automated checks: current state and on-screen stroke points.
   window.PicturePen = {
+    lastEval: function () { return lastEval; },
+    toScreen: function (pts) {
+      var r = canvas.getBoundingClientRect(), c = geo.cells[T.ci];
+      return pts.map(function (p) { return [r.left + c.x + p[0] * c.s / 100, r.top + c.y + p[1] * c.s / 100]; });
+    },
     state: function () {
       return { screen: current, keys: T && T.chars.map(function (c) { return c.key; }), ci: T && T.ci, stroke: T && cur().si, done: T && T.done, idx: session && session.idx, level: currentLevel(), tracking: !!(T && T.tracking), downType: T && T.downType, free: !!(T && cur().free), assist: !!(T && cur().assist), prog: T ? Math.round(cur().prog) : null, restarts: T ? (cur().restarts || 0) : null };
     },

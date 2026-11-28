@@ -1,6 +1,6 @@
 {
   "name": "learn2write",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Learn2Write: a calm, reward-based writing app (numbers and letters) for a young autistic learner",
   "scripts": {

@@ -221,10 +221,12 @@
           <div class="field">
             <span class="label">Order</span>
             <div class="seg" data-setting="order">
+              <button data-value="steps">Step by step</button>
               <button data-value="sequence">In order</button>
               <button data-value="shuffle">Mixed</button>
               <button data-value="weak">More of the weak ones</button>
             </div>
+            <p class="hint steps-info" id="steps-info" hidden></p>
           </div>
           <div class="field">
             <span class="label">Turns per session <small>one picture after each turn</small></span>
@@ -239,9 +241,10 @@
         <section class="panel">
           <h3>Help and senses</h3>
           <div class="field">
-            <span class="label">"Show me" demo <small>a dot draws each stroke first, and again if he is stuck</small></span>
+            <span class="label">"Show me" demo <small>a dot draws the stroke for him. "Fades" shows it straight away at first, then waits a few seconds so he can start on his own, and from Level 18 only when he asks or is stuck</small></span>
             <div class="seg" data-setting="demo">
-              <button data-value="on">On</button>
+              <button data-value="fade">Fades as he improves</button>
+              <button data-value="on">Before every stroke</button>
               <button data-value="off">Off</button>
             </div>
           </div>
