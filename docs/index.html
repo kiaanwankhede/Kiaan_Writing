@@ -181,7 +181,7 @@
   <div class="grid-4">
     <div class="card"><div class="num">1</div><h3>One thing per screen</h3><p>One task, one big button, calm colours, nothing flashing.</p></div>
     <div class="card"><div class="num">2</div><h3>Same routine, every time</h3><p>"First write → Then picture" is shown before he starts.</p></div>
-    <div class="card"><div class="num">3</div><h3>Nothing to get wrong</h3><p>Off the line, the ink just waits. No buzzers, crosses or lost stars.</p></div>
+    <div class="card"><div class="num">3</div><h3>Real strokes, no buzzers</h3><p>Lift the pen or leave the path mid-stroke and the number quietly starts again from the green dot. No crosses or lost stars.</p></div>
     <div class="card"><div class="num">4</div><h3>One picture per success</h3><p>Exactly one, straight away, with its spelling. No gallery to pick from.</p></div>
     <div class="card"><div class="num">5</div><h3>Always something new</h3><p>300 everyday pictures, shuffled. None repeats until all 300 have been seen.</p></div>
     <div class="card"><div class="num">6</div><h3>Grows with him</h3><p>Big and forgiving at first. Tighter, smaller and more per screen as he masters it.</p></div>
@@ -275,7 +275,7 @@
       <li><b>Numbered green dot</b>Where to put the pen, and which stroke comes next.</li>
       <li><b>Arrows + finish ring</b>Which way to go and where to stop.</li>
       <li><b>"Show me" dot</b>Draws the stroke first, and again if he is stuck for 7 seconds.</li>
-      <li><b>Blue ink</b>Only moves forward along the right path. If the pen wanders, it simply waits.</li>
+      <li><b>Blue ink</b>Only moves forward along the right path. Lifting the pen or leaving the path mid-stroke starts the number again from the green dot.</li>
       <li><b>Name + voice</b>"Number 4": the voice says "four" as it appears.</li>
       <li><b>Stars</b>How many turns are left today.</li>
     </ol>
@@ -557,7 +557,7 @@
         <li><b>Start at the head</b>The pen must land near the blue or green dot. Anywhere else just makes the dot pulse.</li>
         <li><b>Look ahead, never back</b>The engine finds the closest point up to 22 units ahead. If it is inside the room allowed at his level (18 at Level 1 down to 6 at Level 7), the ink moves there.</li>
         <li><b>Order and direction for free</b>Progress only goes forward, so stroke order and direction are always right.</li>
-        <li><b>Wandering = pause</b>Too far away and the ink waits (counted for the stars). Coming back to the dot picks it up again.</li>
+        <li><b>Whole strokes only</b>Lifting mid-stroke (longer than 0.3 s) or going right off the path starts the number again. After 3 restarts only that stroke restarts, so he can finish. Restarts lower his stars.</li>
       </ol>
       <p class="small muted" style="margin-top:14px">Other apps use pixel masks ("colour inside the letter") or per-stroke paths with checkpoints. Per-stroke paths are what make demos, arrows and stroke order possible. In free writing (Levels 8–9) the shape is checked separately, with the $P point-cloud recognizer.</p>
     </div>

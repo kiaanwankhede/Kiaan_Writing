@@ -43,7 +43,7 @@
     settings: {
       name: '', set: 'numbers', order: 'sequence', turns: '5',
       levelMode: 'auto', fixedLevel: '1',
-      demo: 'on', voice: 'spell', chime: 'on', calm: prefersReduced ? 'on' : 'off', palm: 'on', sheet: 'weak'
+      demo: 'on', voice: 'spell', chime: 'on', calm: prefersReduced ? 'on' : 'off', palm: 'on', sheet: 'weak', restart: 'number'
     },
     level: 1, nextLevel: 1, levelHist: [],
     stats: {},      // key -> { tries, recent: [scores 0..1], best, last }
@@ -509,6 +509,7 @@
     };
     T.chars[0].m.t0 = performance.now();
     $('trace-label').textContent = keys.length === 1 ? (L.guide === 'free' ? 'Write ' : /[0-9]/.test(keys[0]) ? 'Number ' : 'Letter ') + keys[0] : (L.guide === 'free' ? 'Write ' + keys.join(' ') : '');
+    T.labelText = $('trace-label').textContent;
     renderStars($('stars-trace'));
     show('trace');
     beginChar(450);
@@ -652,9 +653,17 @@
   function release(e) {
     if (e.pointerType === 'pen') { penDown = false; lastPenAt = performance.now(); }
     if (!T || e.pointerId !== T.downId) return;
-    var wasFree = T.tracking && cur().free && !cur().assist && !T.done;
+    var c = cur(), wasFree = T.tracking && c.free && !c.assist && !T.done;
+    var midStroke = T.tracking && !wasFree && !T.done && c.prog > 3 && c.prog < c.strokes[c.si].len - 3;
     T.tracking = false; T.downId = null; T.finger = null;
     if (wasFree) freeUp();
+    if (midStroke && S.restart !== 'off') {
+      // A quick bounce of the pen is forgiven; a real lift starts again.
+      clearTimeout(T.liftTimer);
+      T.liftTimer = setTimeout(function () {
+        if (T && cur() === c && !T.tracking && !c.done && c.prog > 3) { c.m.lapses++; restartChar(c); }
+      }, 300);
+    }
   }
   canvas.addEventListener('pointerup', release);
   canvas.addEventListener('pointercancel', release);
@@ -677,11 +686,35 @@
     var c = cur();
     var head = pointAt(c.strokes[c.si], c.prog);
     if (dist(p, head) > startTolUnits()) return false;
+    clearTimeout(T.liftTimer);
     T.tracking = true;
     T.demo = null;
+    if (T.labelText !== undefined && $('trace-label').textContent !== T.labelText && !c.assist) $('trace-label').textContent = T.labelText;
     if (!c.m.t0) c.m.t0 = performance.now();
     advance(p);
     return true;
+  }
+
+  // Lifting the pen or leaving the path mid-stroke starts the number again from the
+  // green dot (or just that stroke, per the grown-ups setting). No buzzer: the ink
+  // fades and the dot pulses. After 3 restarts on one number, "Show me" plays and
+  // only the current stroke restarts, so he can always finish.
+  function restartChar(c) {
+    if (S.restart === 'off' || !T || c.done) return;
+    c.restarts = (c.restarts || 0) + 1;
+    var scope = S.restart === 'stroke' || c.restarts > 3 ? 'stroke' : 'number';
+    var segs = [];
+    if (scope === 'number') for (var i = 0; i < c.si; i++) segs.push([i, c.strokes[i].len]);
+    if (c.prog > 0) segs.push([c.si, c.prog]);
+    T.fade = { ci: T.chars.indexOf(c), segs: segs, t0: performance.now() };
+    if (scope === 'number') c.si = 0;
+    c.prog = 0;
+    T.tracking = false;
+    T.nudgeAt = performance.now();
+    T.lastProgressAt = performance.now();
+    if (!c.assist) $('trace-label').textContent = 'Start again from the green dot';
+    if (!T.saidRestart && S.voice !== 'off') { T.saidRestart = true; stopSpeech(); speak('Again, from the green dot'); }
+    if (c.restarts === 3) setTimeout(function () { if (T && cur() === c && !T.tracking) playDemo(true); }, 600);
   }
 
   function advance(p) {
@@ -694,7 +727,11 @@
       if (d < bd) { bd = d; best = i; }
     }
     T.finger = p;
-    if (bd > tol * 2.2) { T.tracking = false; c.m.lapses++; return; } // wandered off: the ink just waits
+    if (bd > tol * 2.2) { // went right off the path
+      T.tracking = false; c.m.lapses++;
+      if (S.restart !== 'off' && c.prog > 3) restartChar(c);
+      return;
+    }
     c.m.devSum += bd; c.m.devN++;
     if (bd <= tol) {
       var s = st.cum[best];
@@ -925,6 +962,17 @@
       ctx.lineWidth = 17;
       ch.strokes.forEach(function (st) { polyline(st, 0, st.len); ctx.stroke(); });
       ctx.globalAlpha = 1;
+
+      // A restarted attempt fades away
+      if (T.fade && T.fade.ci === ci) {
+        var ff = (now - T.fade.t0) / 500;
+        if (ff >= 1 || calm) T.fade = null;
+        else {
+          ctx.globalAlpha = 1 - ff; ctx.strokeStyle = C.ink; ctx.lineWidth = 11;
+          T.fade.segs.forEach(function (sg) { polyline(ch.strokes[sg[0]], 0, sg[1]); ctx.stroke(); });
+          ctx.globalAlpha = 1;
+        }
+      }
 
       // Ink
       ctx.strokeStyle = C.ink;
@@ -1319,7 +1367,7 @@
   // Small hook used by automated checks: current state and on-screen stroke points.
   window.PicturePen = {
     state: function () {
-      return { screen: current, keys: T && T.chars.map(function (c) { return c.key; }), ci: T && T.ci, stroke: T && cur().si, done: T && T.done, idx: session && session.idx, level: currentLevel(), tracking: !!(T && T.tracking), downType: T && T.downType, free: !!(T && cur().free), assist: !!(T && cur().assist) };
+      return { screen: current, keys: T && T.chars.map(function (c) { return c.key; }), ci: T && T.ci, stroke: T && cur().si, done: T && T.done, idx: session && session.idx, level: currentLevel(), tracking: !!(T && T.tracking), downType: T && T.downType, free: !!(T && cur().free), assist: !!(T && cur().assist), prog: T ? Math.round(cur().prog) : null, restarts: T ? (cur().restarts || 0) : null };
     },
     strokeScreenPoints: function (otherKey) {
       if (!T) return [];
