@@ -60,6 +60,9 @@
   var OLD_LEVEL_MAP = { 1: 1, 2: 3, 3: 4, 4: 7, 5: 9, 6: 11, 7: 14, 8: 18, 9: 20 };
   var V2_LEVEL_MAP = { 21: 22, 22: 23 };
   var MMPX = 160 / 25.4; // Android CSS px per millimetre (1 dp = 1/160 inch)
+  // Each try gets 1 to 10 stars. Every step of the old 5-star scale is split in two,
+  // so 9-10 stars here is what used to be 5 stars.
+  var STAR_CUTS = [0.93, 0.85, 0.775, 0.7, 0.6, 0.5, 0.4, 0.3, 0.15];
   var LEVEL_UP = { turns: 5, stars: 8 };   // last 5 turns averaging 8 of 10 stars or more
   var LEVEL_DOWN = { turns: 3, stars: 4 }; // last 3 turns averaging under 4 of 10 stars
 
@@ -70,7 +73,7 @@
     settings: {
       name: '', set: 'numbers', order: 'sequence', turns: '5',
       levelMode: 'auto', fixedLevel: '1',
-      demo: 'on', voice: 'spell', chime: 'on', calm: prefersReduced ? 'on' : 'off', palm: 'on', sheet: 'weak', restart: 'number'
+      demo: 'on', voice: 'spell', chime: 'on', calm: prefersReduced ? 'on' : 'off', palm: 'on', sheet: 'weak', restart: 'number', statsRange: '30'
     },
     level: 1, nextLevel: 1, levelHist: [],
     stats: {},      // key -> { tries, recent: [scores 0..1], best, last }
@@ -116,6 +119,16 @@
       (data.paper[k] || []).forEach(function (x) { if (x.r > 0) x.r = Math.min(10, x.r * 2); });
     });
     data.starsV = 10;
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+  // Daily totals for the Stats panel. Older versions only kept finished sessions,
+  // so those are turned into daily totals once.
+  if (!data.days) {
+    data.days = {};
+    (data.sessions || []).forEach(function (s) {
+      var d = dayRec(s.at);
+      d.sess++; d.turns += s.turns; d.st += starsFor(s.avg) * s.turns; d.lv = s.level;
+    });
     try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {}
   }
   function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {} }
@@ -357,9 +370,6 @@
     var acc = 1 - clamp((rel - 0.1) / 0.7, 0, 1);
     return clamp(acc - 0.12 * m.lapses - 0.15 * m.helps, 0, 1);
   }
-  // Each try gets 1 to 10 stars. Every step of the old 5-star scale is split in two,
-  // so 9-10 stars here is what used to be 5 stars.
-  var STAR_CUTS = [0.93, 0.85, 0.775, 0.7, 0.6, 0.5, 0.4, 0.3, 0.15];
   function starsFor(score) {
     for (var i = 0; i < STAR_CUTS.length; i++) if (score >= STAR_CUTS[i]) return 10 - i;
     return 1;
@@ -390,6 +400,24 @@
     st.best = Math.max(st.best, score);
     st.last = Date.now();
     data.stats[key] = st;
+  }
+
+  // ---------------------------------------------------------------- daily totals
+  // One small record per day: sessions, turns, the sum of turn stars, writing time,
+  // pictures, paper turns, the level, and per character
+  // [tries, sum of stars, restarts, wander-offs, "Show me" help, milliseconds].
+  function dayKey(t) {
+    var d = new Date(t);
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  function dayRec(t) {
+    var k = dayKey(t || Date.now()), d = data.days[k];
+    if (!d) {
+      d = data.days[k] = { sess: 0, turns: 0, st: 0, ms: 0, pics: 0, paper: 0, lv: currentLevel(), c: {} };
+      var all = Object.keys(data.days).sort();
+      while (all.length > 400) delete data.days[all.shift()];
+    }
+    return d;
   }
 
   // ---------------------------------------------------------------- levels
@@ -524,6 +552,7 @@
     var queue = [];
     for (var t = 0; t < turns; t++) queue.push(chars.slice(t * L.n, t * L.n + L.n));
     session = { level: lv, queue: queue, idx: 0, doneTurn: false, turnScores: [] };
+    dayRec().sess++;
     save();
     startTurn();
   }
@@ -559,7 +588,7 @@
     T = {
       L: L, chars: keys.map(function (k) { return newChar(k, L); }), ci: 0,
       tracking: false, downId: null, downType: '', done: false, glowAt: 0,
-      lastProgressAt: performance.now(), demo: null, finger: null, hover: null, nudgeAt: 0
+      lastProgressAt: performance.now(), demo: null, finger: null, hover: null, nudgeAt: 0, t0: performance.now()
     };
     T.chars[0].m.t0 = performance.now();
     $('trace-label').textContent = L.guide === 'memory' ? 'Listen and write' :
@@ -855,6 +884,9 @@
     c.done = true;
     c.score = score;
     recordAttempt(c.key, c.score, c.m);
+    var dc = dayRec(), a = dc.c[c.key] || (dc.c[c.key] = [0, 0, 0, 0, 0, 0]);
+    a[0]++; a[1] += starsFor(score); a[2] += c.restarts || 0; a[3] += c.m.lapses; a[4] += c.m.helps;
+    a[5] += Math.min(300000, Math.round(performance.now() - (c.m.t0 || performance.now())));
     T.tracking = false;
     if (T.ci < T.chars.length - 1) {
       chime('char');
@@ -897,6 +929,9 @@
     var turnScore = sum / T.chars.length;
     session.turnScores.push(turnScore);
     recordTurnForLevel(turnScore);
+    var dd = dayRec();
+    dd.turns++; dd.st += starsFor(turnScore); dd.lv = session.level;
+    dd.ms += Math.min(900000, Math.round(performance.now() - T.t0));
     save();
     setTimeout(showReward, 750);
   }
@@ -1149,6 +1184,8 @@
   function showReward() {
     var rw = nextReward();
     shownReward = rw;
+    dayRec().pics++;
+    save();
     session.doneTurn = true;
     renderStars($('stars-reward'));
     var img = $('reward-img'), btn = $('reward-pic');
@@ -1195,6 +1232,7 @@
   }
   function renderParent() {
     var keys = setKeys();
+    renderStats(keys);
     // Performance per character
     var grid = $('perf-grid');
     grid.innerHTML = '';
@@ -1309,6 +1347,243 @@
     box.innerHTML = html + '</ul><p class="hint">Average pen pressure over his last 5 tries per character. Every pen reads a little differently, so the trend matters more than the exact number. Steady, comfortable pressure helps when he moves to pencil and paper.</p>';
   }
 
+  // ---------------------------------------------------------------- stats
+  // Progress over a chosen period, built from the daily totals.
+  function dateOf(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function fmtDay(d) { return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }); }
+  function fmtMin(ms) {
+    var m = Math.round(ms / 60000);
+    if (ms > 0 && m === 0) return 'under 1 min';
+    return m < 60 ? m + ' min' : Math.floor(m / 60) + ' h ' + (m % 60 ? (m % 60) + ' min' : '');
+  }
+  function fmt1(x) { return (Math.round(x * 10) / 10).toFixed(1); }
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function sumDays(list, keys) {
+    var t = { sess: 0, turns: 0, st: 0, ms: 0, pics: 0, paper: 0, practised: 0, c: {} };
+    list.forEach(function (k) {
+      var d = data.days[k];
+      if (!d) return;
+      t.sess += d.sess; t.turns += d.turns; t.st += d.st; t.ms += d.ms; t.pics += d.pics; t.paper += d.paper || 0;
+      if (d.turns || d.paper) t.practised++;
+      Object.keys(d.c || {}).forEach(function (ch) {
+        if (keys && keys.indexOf(ch) === -1) return;
+        var a = t.c[ch] || (t.c[ch] = [0, 0, 0, 0, 0, 0]);
+        for (var i = 0; i < 6; i++) a[i] += d.c[ch][i];
+      });
+    });
+    t.tries = 0; t.restarts = 0;
+    Object.keys(t.c).forEach(function (ch) { t.tries += t.c[ch][0]; t.restarts += t.c[ch][2]; });
+    return t;
+  }
+  function statsPeriod() {
+    var span = parseInt(S.statsRange, 10) || 0;
+    var all = Object.keys(data.days).sort();
+    var end = new Date(); end = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    var start = span ? addDays(end, 1 - span) : (all.length ? dateOf(all[0]) : end);
+    if (start > end) start = end;
+    var days = [], prev = [];
+    for (var d = start; d <= end; d = addDays(d, 1)) days.push(dayKey(d.getTime()));
+    if (span) for (var p = addDays(start, -span); p < start; p = addDays(p, 1)) prev.push(dayKey(p.getTime()));
+    // Level on the day before the period, so the level line starts where he was
+    var before = all.filter(function (k) { return k < days[0]; });
+    var lv0 = before.length ? data.days[before[before.length - 1]].lv : null;
+    return { span: span, start: start, days: days, prev: prev, lv0: lv0 };
+  }
+  function buckets(P) {
+    var size = P.days.length > 92 ? 7 : 1, B = [], lv = P.lv0;
+    for (var i = 0; i < P.days.length; i += size) {
+      var ks = P.days.slice(i, i + size), t = sumDays(ks);
+      ks.forEach(function (k) { if (data.days[k] && (data.days[k].turns || data.days[k].sess)) lv = data.days[k].lv; });
+      var d0 = dateOf(ks[0]);
+      B.push({
+        keys: ks, t: t, lv: lv,
+        label: size === 1 ? fmtDay(d0) : 'Week of ' + fmtDay(d0),
+        short: fmtDay(d0),
+        stars: t.turns ? t.st / t.turns : null,
+        min: t.turns ? t.ms / 60000 : null
+      });
+    }
+    return { B: B, weekly: size === 7 };
+  }
+  function niceMax(v) {
+    var steps = [4, 6, 10, 20, 30, 40, 60, 80, 120, 180, 240, 300, 480, 600];
+    for (var i = 0; i < steps.length; i++) if (v <= steps[i]) return steps[i];
+    return Math.ceil(v / 100) * 100;
+  }
+
+  // A column chart or a stepped line chart in plain SVG, with a tap/hover readout.
+  function drawChart(box, B, opt) {
+    var W = Math.max(280, Math.round(box.getBoundingClientRect().width || 800)), H = opt.h;
+    var Lp = 36, Rp = opt.endLabel ? 64 : 10, Tp = 14, Bp = 26, pw = W - Lp - Rp, ph = H - Tp - Bp;
+    var n = B.length, band = pw / n, base = Tp + ph;
+    var y = function (v) { return Tp + ph - (v - opt.min) / (opt.max - opt.min) * ph; };
+    var cx = function (i) { return Lp + band * i + band / 2; };
+    var s = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" aria-hidden="true">';
+    opt.ticks.forEach(function (t) {
+      s += '<line class="grid" x1="' + Lp + '" x2="' + (W - Rp) + '" y1="' + y(t) + '" y2="' + y(t) + '"/>';
+      s += '<text class="tick" x="' + (Lp - 8) + '" y="' + (y(t) + 4) + '" text-anchor="end">' + t + '</text>';
+    });
+    if (opt.ref) {
+      s += '<line class="ref" x1="' + Lp + '" x2="' + (W - Rp) + '" y1="' + y(opt.ref.v) + '" y2="' + y(opt.ref.v) + '"/>';
+      s += '<text class="reftxt" x="' + (Lp - 8) + '" y="' + (y(opt.ref.v) + 4) + '" text-anchor="end">' + esc(opt.ref.label) + '</text>';
+    }
+    if (opt.type === 'col') {
+      var cw = Math.max(2, Math.min(24, band * 0.7));
+      B.forEach(function (b, i) {
+        var v = opt.val(b);
+        if (v == null || v <= 0) return;
+        var x = cx(i) - cw / 2, top = y(Math.min(v, opt.max)), r = Math.min(4, cw / 2, base - top);
+        s += '<path class="col" data-i="' + i + '" d="M' + x + ',' + base + 'V' + (top + r) + 'Q' + x + ',' + top + ' ' + (x + r) + ',' + top +
+          'H' + (x + cw - r) + 'Q' + (x + cw) + ',' + top + ' ' + (x + cw) + ',' + (top + r) + 'V' + base + 'Z"/>';
+      });
+    } else {
+      var d = '', last = null, prevY = null;
+      B.forEach(function (b, i) {
+        var v = opt.val(b);
+        if (v == null) return;
+        var px = cx(i), py = y(v);
+        d += prevY == null ? 'M' + px + ',' + py : 'L' + px + ',' + prevY + 'L' + px + ',' + py;
+        prevY = py; last = { x: px, y: py, v: v };
+      });
+      if (d) s += '<path class="lvl" d="' + d + '"/>';
+      if (last) {
+        s += '<circle class="dot" cx="' + last.x + '" cy="' + last.y + '" r="4.5"/>';
+        if (opt.endLabel) s += '<text class="endl" x="' + (last.x + 10) + '" y="' + (last.y + 4) + '">' + esc(opt.endLabel(last.v)) + '</text>';
+      }
+      s += '<line class="cross" x1="0" x2="0" y1="' + Tp + '" y2="' + base + '" visibility="hidden"/><circle class="dot hov" r="4.5" visibility="hidden"/>';
+    }
+    s += '<line class="base" x1="' + Lp + '" x2="' + (W - Rp) + '" y1="' + base + '" y2="' + base + '"/>';
+    // Date labels: the newest day, then every few days back, at least 64 px apart
+    var step = Math.max(1, Math.ceil(64 / band));
+    for (var i = n - 1; i >= 0; i -= step) s += '<text class="xl" x="' + cx(i) + '" y="' + (H - 6) + '" text-anchor="middle">' + esc(B[i].short) + '</text>';
+    for (var j = 0; j < n; j++) s += '<rect class="hit" data-i="' + j + '" x="' + (Lp + band * j) + '" y="0" width="' + band + '" height="' + H + '"/>';
+    s += '</svg>';
+    box.innerHTML = s + '<div class="tip" hidden><b></b><span></span></div>';
+    box._B = B; box._opt = opt; box._geo = { cx: cx, y: y };
+    if (!box._wired) {
+      box._wired = true;
+      var tipAt = function (e) {
+        var hit = e.target.closest && e.target.closest('.hit');
+        if (!hit) return;
+        var i = +hit.getAttribute('data-i'), b = box._B[i], o = box._opt, g = box._geo, tip = box.querySelector('.tip');
+        var v = o.val(b), lines = o.tip(b, v);
+        tip.querySelector('b').textContent = lines[0];
+        tip.querySelector('span').textContent = lines[1];
+        tip.hidden = false;
+        var x = g.cx(i), top = v == null ? g.y(o.min) : g.y(Math.min(v, o.max));
+        var w = box.clientWidth;
+        tip.style.left = Math.max(70, Math.min(w - 70, x)) + 'px';
+        tip.style.top = (top - 10) + 'px';
+        box.querySelectorAll('.col.on').forEach(function (el) { el.classList.remove('on'); });
+        var col = box.querySelector('.col[data-i="' + i + '"]');
+        if (col) col.classList.add('on');
+        var cr = box.querySelector('.cross'), hv = box.querySelector('.hov');
+        if (cr) {
+          cr.setAttribute('x1', x); cr.setAttribute('x2', x); cr.setAttribute('visibility', 'visible');
+          if (v != null) { hv.setAttribute('cx', x); hv.setAttribute('cy', g.y(v)); hv.setAttribute('visibility', 'visible'); } else hv.setAttribute('visibility', 'hidden');
+        }
+      };
+      box.addEventListener('pointermove', tipAt);
+      box.addEventListener('pointerdown', tipAt);
+      box.addEventListener('pointerleave', function (e) {
+        if (e.pointerType !== 'mouse') return;
+        box.querySelector('.tip').hidden = true;
+        box.querySelectorAll('.col.on').forEach(function (el) { el.classList.remove('on'); });
+        var cr = box.querySelector('.cross');
+        if (cr) { cr.setAttribute('visibility', 'hidden'); box.querySelector('.hov').setAttribute('visibility', 'hidden'); }
+      });
+    }
+  }
+
+  function delta(cur, prev, upIsGood, span, digits) {
+    if (cur == null || prev == null || !span) return '';
+    var diff = cur - prev, f = Math.pow(10, digits || 1);
+    var shown = Math.round(Math.abs(diff) * f) / f;
+    var vs = ' vs the ' + span + ' days before';
+    if (shown === 0) return '<span class="d flat">Same as the ' + span + ' days before</span>';
+    var good = diff > 0 === upIsGood;
+    return '<span class="d ' + (good ? 'good' : 'bad') + '">' + (diff > 0 ? '▲ ' : '▼ ') + shown.toFixed(digits == null ? 1 : digits) + (diff > 0 ? ' up' : ' down') + vs + '</span>';
+  }
+
+  function renderStats(keys) {
+    var P = statsPeriod(), cur = sumDays(P.days, keys), prev = P.span ? sumDays(P.prev, keys) : null;
+    var noun = setKeys().every(function (k) { return /[0-9]/.test(k); }) ? 'Numbers' : 'Characters';
+    var periodTxt = P.span ? 'of the last ' + P.span + ' days' : 'since ' + fmtDay(P.start);
+    var avgSt = cur.turns ? cur.st / cur.turns : null, prevSt = prev && prev.turns ? prev.st / prev.turns : null;
+    var rpn = cur.tries ? cur.restarts / cur.tries : null, prevRpn = prev && prev.tries ? prev.restarts / prev.tries : null;
+    var tiles = [
+      ['Days practised', cur.practised + '', periodTxt],
+      ['Writing time', cur.ms ? fmtMin(cur.ms) : '0 min', cur.practised && cur.ms ? 'about ' + fmtMin(cur.ms / cur.practised) + ' on a day he practised' : 'time spent writing in turns'],
+      [noun + ' written', cur.tries + '', 'traced or written on the tablet'],
+      ['Pictures earned', cur.pics + '', cur.paper ? 'including ' + cur.paper + ' for writing on paper' : 'one after every turn'],
+      ['Average stars', avgSt == null ? '–' : fmt1(avgSt) + '<small> / 10</small>', delta(avgSt, prevSt, true, P.span) || 'per turn'],
+      ['Restarts per ' + noun.toLowerCase().replace(/s$/, ''), rpn == null ? '–' : fmt1(rpn), delta(rpn, prevRpn, false, P.span) || 'pen lifted or left the path']
+    ];
+    $('stats-kpis').innerHTML = tiles.map(function (t) {
+      return '<div class="kpi"><span class="k">' + esc(t[0]) + '</span><span class="v">' + t[1] + '</span><span class="s">' + t[2] + '</span></div>';
+    }).join('');
+
+    var BB = buckets(P), B = BB.B, has = cur.turns > 0;
+    $('stats-charts').hidden = !has;
+    $('stats-empty').hidden = has;
+    $('stats-detail').hidden = !(cur.tries || cur.paper);
+    var per = BB.weekly ? 'per week' : 'per day';
+    $('cap-stars').textContent = 'Average stars ' + per;
+    $('cap-time').textContent = 'Writing time ' + per;
+    $('cap-stars-sub').textContent = 'Out of 10. The darker line at 8★ is where he moves up a level. Tap a column to see that ' + (BB.weekly ? 'week.' : 'day.');
+    if (has) {
+      var tipLine = function (b) {
+        return b.t.turns ? b.label + ' · ' + b.t.turns + (b.t.turns === 1 ? ' turn' : ' turns') + ' · ' + fmtMin(b.t.ms) : b.label + ' · no practice';
+      };
+      drawChart($('chart-stars'), B, { type: 'col', h: 210, min: 0, max: 10, ticks: [0, 5, 10], ref: { v: 8, label: '8★' },
+        val: function (b) { return b.stars; },
+        tip: function (b, v) { return [v == null ? 'No practice' : fmt1(v) + ' ★ out of 10', tipLine(b)]; } });
+      var maxMin = Math.max.apply(null, B.map(function (b) { return b.min || 0; }));
+      var mm = niceMax(Math.max(5, maxMin));
+      drawChart($('chart-time'), B, { type: 'col', h: 170, min: 0, max: mm, ticks: [0, mm / 2, mm],
+        val: function (b) { return b.min; },
+        tip: function (b, v) { return [v == null ? 'No practice' : fmtMin(b.t.ms), b.label + (b.t.sess ? ' · ' + b.t.sess + (b.t.sess === 1 ? ' session' : ' sessions') : '')]; } });
+      drawChart($('chart-level'), B, { type: 'line', h: 170, min: 1, max: LEVELS.length, ticks: [1, 8, 16, 24],
+        val: function (b) { return b.lv; },
+        endLabel: function (v) { return 'Level ' + v; },
+        tip: function (b, v) { return [v == null ? 'Not started' : 'Level ' + v, b.label]; } });
+      var firstLv = null;
+      B.forEach(function (b) { if (firstLv == null && b.lv != null) firstLv = b.lv; });
+      var lastLv = B[B.length - 1].lv;
+      $('cap-level-sub').textContent = firstLv != null && lastLv !== firstLv ? 'From Level ' + firstLv + ' to Level ' + lastLv + ' in this period' : 'Level ' + lastLv + ' all through this period';
+    }
+
+    // Each character in this period
+    var rows = keys.map(function (k) {
+      var a = cur.c[k], b = prev && prev.c[k];
+      var pr = (data.paper[k] || []).filter(function (x) { return x.r > 0 && dayKey(x.at) >= P.days[0]; });
+      var paper = pr.length ? fmt1(pr.reduce(function (s, x) { return s + x.r; }, 0) / pr.length) + ' ★' : '–';
+      if (!a || !a[0]) return '<tr class="none"><th scope="row">' + esc(k) + '</th><td colspan="6">not written in this period</td><td>' + paper + '</td></tr>';
+      var st = a[1] / a[0], pst = b && b[0] ? b[1] / b[0] : null;
+      var ch = pst == null ? '–' : Math.abs(st - pst) < 0.05 ? 'same' : (st > pst ? '▲ ' : '▼ ') + fmt1(Math.abs(st - pst));
+      var chCls = pst == null || Math.abs(st - pst) < 0.05 ? '' : st > pst ? 'good' : 'bad';
+      return '<tr><th scope="row">' + esc(k) + '</th><td class="n">' + a[0] + '</td>' +
+        '<td><span class="meter" role="img" aria-label="' + fmt1(st) + ' stars out of 10"><i><b style="width:' + (st * 10) + '%"></b></i><span class="n">' + fmt1(st) + '</span></span></td>' +
+        '<td class="n ' + chCls + '">' + ch + '</td>' +
+        '<td class="n">' + fmt1(a[2] / a[0]) + '</td><td class="n">' + Math.round(a[4] / a[0] * 100) + '%</td>' +
+        '<td class="n">' + Math.round(a[5] / a[0] / 1000) + ' s</td><td class="n">' + paper + '</td></tr>';
+    });
+    $('stats-chars').innerHTML = '<thead><tr><th scope="col">' + (noun === 'Numbers' ? 'Number' : 'Character') + '</th><th scope="col">Tries</th><th scope="col">Stars</th><th scope="col">' +
+      (P.span ? 'Change' : '') + '</th><th scope="col">Restarts per try</th><th scope="col">"Show me" help</th><th scope="col">Time each</th><th scope="col">Paper</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
+    $('stats-chars-cap').textContent = P.span ? 'Change compares the stars with the ' + P.span + ' days before.' : '';
+
+    // Day by day
+    var dayRows = P.days.slice().reverse().filter(function (k) { var d = data.days[k]; return d && (d.turns || d.paper); }).map(function (k) {
+      var d = data.days[k];
+      return '<tr><th scope="row">' + esc(fmtDay(dateOf(k))) + '</th><td class="n">' + d.sess + '</td><td class="n">' + d.turns + '</td><td class="n">' +
+        (d.turns ? fmt1(d.st / d.turns) + ' ★' : '–') + '</td><td class="n">' + (d.ms ? fmtMin(d.ms) : '–') + '</td><td class="n">' + d.lv + '</td><td class="n">' + d.pics + '</td></tr>';
+    });
+    $('stats-days').innerHTML = '<thead><tr><th scope="col">Day</th><th scope="col">Sessions</th><th scope="col">Turns</th><th scope="col">Average stars</th><th scope="col">Writing time</th><th scope="col">Level</th><th scope="col">Pictures</th></tr></thead><tbody>' +
+      (dayRows.length ? dayRows.join('') : '<tr><td colspan="7" class="muted">No practice in this period.</td></tr>') + '</tbody>';
+  }
+  window.addEventListener('resize', function () { if (current === 'parent') renderStats(setKeys()); });
+
   // ---------------------------------------------------------------- paper practice
   var paperSel = [], paperRating = 0;
   function weakest(n) {
@@ -1348,6 +1623,7 @@
     keys.forEach(function (k) {
       data.paper[k] = (data.paper[k] || []).concat({ r: paperRating, at: Date.now() }).slice(-20);
     });
+    dayRec().paper++;
     save();
     unlockSpeech();
     paperSel = []; paperRating = 0;
@@ -1419,7 +1695,7 @@
   $('name-input').addEventListener('input', function (e) { S.name = e.target.value.slice(0, 24); save(); });
   $('btn-reset').addEventListener('click', function () {
     if (!window.confirm('Reset stars, level and session history? Settings stay.')) return;
-    data.stats = {}; data.sessions = []; data.cursor = {}; data.level = 1; data.nextLevel = 1; data.levelHist = []; data.paper = {};
+    data.stats = {}; data.sessions = []; data.cursor = {}; data.level = 1; data.nextLevel = 1; data.levelHist = []; data.paper = {}; data.days = {};
     save(); renderParent();
   });
   $('btn-parent-done').addEventListener('click', function () { show('home'); });

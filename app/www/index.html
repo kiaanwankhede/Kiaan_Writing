@@ -118,6 +118,41 @@
       </header>
       <main class="parent-main">
 
+        <section class="panel stats" id="stats-panel">
+          <h3>Stats</h3>
+          <div class="seg stats-range" data-setting="statsRange" role="group" aria-label="Period">
+            <button data-value="7">Last 7 days</button>
+            <button data-value="30">Last 30 days</button>
+            <button data-value="90">Last 90 days</button>
+            <button data-value="0">All time</button>
+          </div>
+          <div class="kpis" id="stats-kpis"></div>
+          <p class="hint" id="stats-empty" hidden>No practice in this period yet. Stats appear after his first turn.</p>
+          <div class="charts" id="stats-charts">
+            <figure class="chart wide">
+              <figcaption><b id="cap-stars">Average stars per day</b><span id="cap-stars-sub"></span></figcaption>
+              <div class="plot" id="chart-stars"></div>
+            </figure>
+            <figure class="chart">
+              <figcaption><b id="cap-time">Writing time per day</b><span>Minutes spent writing in turns</span></figcaption>
+              <div class="plot" id="chart-time"></div>
+            </figure>
+            <figure class="chart">
+              <figcaption><b>Level</b><span id="cap-level-sub"></span></figcaption>
+              <div class="plot" id="chart-level"></div>
+            </figure>
+          </div>
+          <div id="stats-detail">
+          <h4>Each character in this period</h4>
+          <div class="table-wrap"><table class="stats-table" id="stats-chars"></table></div>
+          <p class="hint small" id="stats-chars-cap"></p>
+          <details class="stats-days">
+            <summary>Day by day</summary>
+            <div class="table-wrap"><table class="stats-table" id="stats-days"></table></div>
+          </details>
+          </div>
+        </section>
+
         <section class="panel">
           <h3>Stars per character</h3>
           <p class="hint">Each try gets 1 to 10 stars; the card shows the average of his last 5 tries. Stars come from how closely the pen followed the path, how often it wandered off, and how often "Show me" help was needed. ↑ / ↓ shows the recent trend.</p>

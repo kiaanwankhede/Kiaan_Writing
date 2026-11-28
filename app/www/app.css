@@ -344,3 +344,53 @@ table.sessions td.muted { color: var(--muted); }
   .sheet-row svg { width: 100%; height: auto; display: block; }
   .sheet-foot { font-size: 9.5pt; color: #6E6A63; margin-top: 3mm; }
 }
+
+/* Stats ----------------------------------------------------------------- */
+.panel h4 { margin: 22px 0 8px; font-size: 18px; font-weight: 900; }
+.stats-range { margin: 0 0 14px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.kpi { background: var(--bg); border-radius: 16px; padding: 12px 16px; display: grid; gap: 2px; align-content: start; }
+.kpi .k { font-size: 14px; font-weight: 800; color: var(--muted); }
+.kpi .v { font-size: 30px; font-weight: 900; line-height: 1.15; }
+.kpi .v small { font-size: 16px; font-weight: 800; color: var(--muted); }
+.kpi .s { font-size: 13.5px; font-weight: 700; color: var(--muted); }
+.d.good, .stats-table .good { color: var(--primary); font-weight: 800; }
+.d.bad, .stats-table .bad { color: var(--danger); font-weight: 800; }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 18px 22px; }
+.charts[hidden] { display: none; }
+.chart { margin: 0; min-width: 0; }
+.chart.wide { grid-column: 1 / -1; }
+.chart figcaption { display: grid; gap: 1px; margin-bottom: 4px; }
+.chart figcaption b { font-size: 16px; font-weight: 900; }
+.chart figcaption span { font-size: 13.5px; font-weight: 700; color: var(--muted); min-height: 1.2em; }
+.plot { position: relative; touch-action: pan-y; }
+.plot svg { display: block; overflow: visible; }
+.plot .grid { stroke: #F0EBE1; stroke-width: 1; }
+.plot .base { stroke: var(--line-strong); stroke-width: 1; }
+.plot .ref { stroke: #A39C90; stroke-width: 1; }
+.plot .tick, .plot .xl { font: 700 12px var(--font); fill: var(--muted); font-variant-numeric: tabular-nums; }
+.plot .reftxt { font: 800 12px var(--font); fill: var(--muted); }
+.plot .endl { font: 800 13px var(--font); fill: var(--text); }
+.plot .col { fill: #13866D; }
+.plot .col.on { fill: #4FA98F; }
+.plot .lvl { fill: none; stroke: #4263EB; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.plot .dot { fill: #4263EB; stroke: #fff; stroke-width: 2; }
+.plot .cross { stroke: #A39C90; stroke-width: 1; }
+.plot .hit { fill: transparent; }
+.plot .tip { position: absolute; z-index: 2; pointer-events: none; transform: translate(-50%, -100%); background: #fff; border: 1px solid var(--line-strong); border-radius: 12px; padding: 6px 12px; box-shadow: var(--shadow); white-space: nowrap; text-align: center; }
+.plot .tip b { display: block; font-size: 17px; font-weight: 900; color: var(--text); }
+.plot .tip span { font-size: 13px; font-weight: 700; color: var(--muted); }
+.table-wrap { overflow-x: auto; }
+.stats-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.stats-table th, .stats-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+.stats-table thead th { font-size: 13px; font-weight: 800; color: var(--muted); }
+.stats-table tbody th { font-size: 20px; font-weight: 900; }
+.stats-table .n { font-variant-numeric: tabular-nums; }
+.stats-table tr.none td { color: var(--muted); }
+.meter { display: inline-flex; align-items: center; gap: 8px; }
+.meter i { position: relative; display: block; width: 96px; height: 8px; border-radius: 4px; background: #D5ECE5; overflow: hidden; }
+.meter i b { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: #13866D; }
+.hint.small { font-size: 13.5px; margin-top: 6px; }
+.stats-days { margin-top: 10px; }
+.stats-days summary { cursor: pointer; font-size: 16px; font-weight: 800; color: var(--primary); padding: 8px 0; }
+.stats-table td.muted { color: var(--muted); }
