@@ -20,7 +20,7 @@
 
   // n = characters per screen, size = share of the writing area's height,
   // tol = how far (in 1/100ths of a character) the pen may wander from the path.
-  // 22 levels in 4 stages. Tracing levels change ONE thing at a time; each new
+  // 24 levels in 4 stages. Tracing levels change ONE thing at a time; each new
   // stage starts a little easier again.
   //   n = characters per screen, size = share of the writing area's height
   //   (or mm = cap height in millimetres), tol = room to wander off the path in
@@ -49,12 +49,16 @@
     { n: 1, size: 0.80, tol: 12,  guide: 'free', stage: 3, model: true, startDot: true, note: 'Copy the model · 1 per screen · big' },
     { n: 2, size: 0.80, tol: 12,  guide: 'free', stage: 3, model: true, startDot: true, note: 'Copy the model · 2 per screen · big' },
     { n: 3, mm: 22,     tol: 10,  guide: 'free', stage: 3, model: true, startDot: true, note: 'Copy the model · 3 per screen · school-paper size' },
+    { n: 4, mm: 22,     tol: 10,  guide: 'free', stage: 3, model: true, startDot: true, note: 'Copy the model · 4 in a row · school-paper size' },
     // Stage 4 · hear it, write it: no model at all
     { n: 1, size: 0.80, tol: 12,  guide: 'memory', stage: 4, note: 'Hear it, write it · 1 per screen · big' },
-    { n: 3, mm: 22,     tol: 10,  guide: 'memory', stage: 4, note: 'Hear it, write it · 3 per screen · school-paper size' }
+    { n: 3, mm: 22,     tol: 10,  guide: 'memory', stage: 4, note: 'Hear it, write it · 3 per screen · school-paper size' },
+    { n: 5, mm: 22,     tol: 10,  guide: 'memory', stage: 4, note: 'Hear it, write it · 5 in a row · school-paper size' }
   ];
-  // Levels before v0.5 (9 levels) mapped onto the new scale.
+  // Saved levels from older versions, mapped onto today's 24 levels:
+  // v1 had 9 levels; v2 had 22 (its 21-22 are now 22-23).
   var OLD_LEVEL_MAP = { 1: 1, 2: 3, 3: 4, 4: 7, 5: 9, 6: 11, 7: 14, 8: 18, 9: 20 };
+  var V2_LEVEL_MAP = { 21: 22, 22: 23 };
   var MMPX = 160 / 25.4; // Android CSS px per millimetre (1 dp = 1/160 inch)
   var LEVEL_UP = { turns: 5, avg: 0.75 };   // last 5 turns averaging 4 stars or more
   var LEVEL_DOWN = { turns: 3, avg: 0.35 }; // last 3 turns averaging under 2 stars
@@ -93,11 +97,17 @@
   }
   var data = load();
   var S = data.settings;
-  if (!data.levelsV) {
-    data.level = OLD_LEVEL_MAP[data.level] || 1;
-    data.nextLevel = OLD_LEVEL_MAP[data.nextLevel] || data.level;
-    S.fixedLevel = String(OLD_LEVEL_MAP[S.fixedLevel] || 1);
-    data.levelsV = 2;
+  if (data.levelsV !== 3) {
+    var from = data.levelsV || 1;
+    var mapLv = function (n) {
+      n = parseInt(n, 10) || 1;
+      if (from === 1) n = OLD_LEVEL_MAP[n] || 1;
+      return V2_LEVEL_MAP[n] || n;
+    };
+    data.level = mapLv(data.level);
+    data.nextLevel = mapLv(data.nextLevel || data.level);
+    S.fixedLevel = String(mapLv(S.fixedLevel));
+    data.levelsV = 3;
     try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {}
   }
   function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {} }
