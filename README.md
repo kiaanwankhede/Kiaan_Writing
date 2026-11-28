@@ -9,7 +9,7 @@ Built as an **Android app for a Lenovo tablet with a stylus**.
 |---|---|
 | **Android app (APK)** | `docs/download/learn2write.apk` |
 | **Presentation** (research, design, mock screens, plan) | `docs/index.html`, published with GitHub Pages |
-| **The 9 levels** (web page and PowerPoint, one section per level) | `docs/levels.html` · `docs/download/Learn2Write-levels.pptx` |
+| **The 22 levels** (web page and PowerPoint, one section per level) | `docs/levels.html` · `docs/download/Learn2Write-levels.pptx` |
 | **App source** | `app/` (Capacitor project: `app/www` is the app, `app/android` the native shell) |
 
 ## What the app does
@@ -17,8 +17,8 @@ Built as an **Android app for a Lenovo tablet with a stylus**.
 - **Numbers 1–9 first.** Capital letters A–Z are built in, and you switch them on in the Grown-ups area when he's ready.
 - **Tracing in whole strokes.** The blue ink only moves forward along the correct path. If he lifts the pen mid-stroke (longer than a 0.3 s bounce) or goes right off the path, the number fades and starts again from the green dot, so he practises each stroke in one smooth movement. There are no "wrong" sounds. After 3 restarts on one number, "Show me" plays and only that stroke restarts, so he can always finish. Restarts lower his stars. Grown-ups can choose: start the number again (default), start that stroke again, or carry on where he stopped. A dot can demonstrate each stroke ("Show me"), and the voice says each number.
 - **One picture per success.** After each turn he sees exactly one picture, with its word in big letter tiles, read out and spelled ("Elephant! E, L, E, P, H, A, N, T"). The 300 everyday pictures come in a shuffled order, and none repeats until all 300 have been seen. There is no picture bank for him to pick from.
-- **Grows with him (9 levels).** Level 1 is one very big number with lots of room to wander. As he masters each level, the room shrinks, the numbers get smaller, and more appear per screen (up to 4). The level moves up after 5 turns averaging 4★, and steps back after 3 turns under 2★. Changes only happen between sessions. You can also fix the level yourself.
-- **Free writing (Levels 8–9).** No path: he copies a model shown on the left, on writing lines, in pencil-look ink that darkens with pen pressure. When he pauses, the app checks the shape with the $P point-cloud recognizer. If it isn't recognised, the path appears and they trace it together, so the turn still ends in success (counted as help in his stars). Level 9 is three numbers per screen at about school-paper size.
+- **Grows with him: 22 levels in 4 stages.** **Tracing on a road** (Levels 1–14): each level changes just one thing, whether room to wander (18% → 6.5% of the character's height), size, numbers per screen (1 → 4) or the guide (arrows → dots → faint path). **Dotted outline** (15–17): a thin dotted number like the printed sheet. **Copy the model** (18–20): free writing, ending at school-paper size. **Hear it, write it** (21–22): no model; the voice says the number. Each new stage starts a little easier again. He moves up after 5 turns averaging 4★ and steps back after 3 turns under 2★, only between sessions. You can also fix the level yourself. Saved levels from older versions are moved to the matching new level.
+- **Free writing (Levels 18–22).** No path, in pencil-look ink that darkens with pen pressure. At 18–20 he copies a model shown on the left; at 21–22 there is no model, "Hear it again" repeats the number and "Show me" draws it. When he pauses, the app checks the shape with the $P point-cloud recognizer. If it isn't recognised, the path appears and they trace it together, so the turn still ends in success (counted as help in his stars).
 - **Stars per character, for you.** Each try is scored 1–5★ from how closely the pen followed the path (compared with the room at his level), minus a little each time it wandered right off or needed "Show me". The Grown-ups area shows each character's average over the last 5 tries, a trend arrow, "Doing well / Needs practice" lists, his level, and the recent session history.
 - **Palm guard, with any stylus.** Lenovo-type pens are recognised automatically, so a resting palm is ignored and a ring shows where the pen is hovering. With a simple stylus (one that works like a finger), the app ignores palm-sized touches, and the pen always takes over from a hand that is resting but not writing. The Grown-ups area has a **touch check** pad to see how the pen and his palm are told apart on your tablet.
 - **Pen pressure.** With an active pen (one that pairs with the tablet, such as the Lenovo Tab Pen), the app records how hard he presses. The Grown-ups area shows it as light, comfortable or pressing hard, overall and per character. A plain rubber-tip stylus can't sense pressure, and the app says so.
@@ -28,7 +28,7 @@ Built as an **Android app for a Lenovo tablet with a stylus**.
 ## Road to pencil and paper
 
 1. **Tracing with a stylus** (Levels 1–7): guides fade and characters shrink as he masters each level, and pen pressure is measured.
-2. **Free writing** (Levels 8–9): copy a model with no path, in pencil-look ink, ending at school-paper size.
+2. **Dotted outline, copy the model, then hear it and write it** (Levels 15–22): no path at the end, at school-paper size, from memory.
 3. **Paper turns:** printable sheets of his weakest characters. When he writes one on paper, a grown-up taps "Done on paper" and he gets his one picture, the same as on the tablet.
 4. **Alongside:** a short, chunky or triangular pencil, and his OT checking grip and pressure.
 

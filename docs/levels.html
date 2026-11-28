@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learn2Write Levels</title>
-  <meta name="description" content="The 9 levels of Learn2Write and what changes at each step: numbers per screen, size, room to wander and guide, from tracing one big number to free writing at school-paper size.">
+  <meta name="description" content="The 22 levels of Learn2Write in 4 stages, and what changes at each step: numbers per screen, size, room to wander and guide, from tracing one big number to writing from memory.">
   <meta name="color-scheme" content="light">
   <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
@@ -124,7 +124,36 @@
     .same li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: center; }
     .same i { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--teal); display: grid; place-items: center; font-style: normal; color: var(--teal); font: 900 15px var(--display); }
     footer { padding: 40px 0 48px; color: var(--muted); font-size: 14px; }
-  </style>
+  
+    /* stages */
+    .s1 { --st: #1F2A44; --st-soft: #F3F6F9; }
+    .s2 { --st: #4263EB; --st-soft: #EEF2FF; }
+    .s3 { --st: #2F7D6D; --st-soft: #E6F2EF; }
+    .s4 { --st: #7A4FB5; --st-soft: #F3EEFA; }
+    .stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 26px; }
+    @media (max-width: 980px) { .stages { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .stages { grid-template-columns: 1fr; } }
+    .stage-card { background: var(--paper); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; text-decoration: none; color: var(--text); display: flex; flex-direction: column; }
+    .stage-card img { display: block; width: 100%; height: auto; aspect-ratio: 1.6; object-fit: cover; border-bottom: 1px solid var(--line); }
+    .stage-card div { padding: 14px 16px 16px; }
+    .stage-card .lv { font: 800 13px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--st); }
+    .stage-card h3 { font-size: 20px; margin: 4px 0 6px; }
+    .stage-card p { margin: 0; font-size: 15px; color: #3A4358; }
+    .chip.s2 { border-color: #C9D3FB; color: #4263EB; } .chip.s3 { border-color: #B9DCD2; color: #2F7D6D; } .chip.s4 { border-color: #D9C8EE; color: #7A4FB5; }
+    .chip.on { background: var(--st, var(--text)); border-color: var(--st, var(--text)); color: #fff; }
+    .ladder { grid-template-columns: 150px repeat(22, minmax(56px, 1fr)); min-width: 1500px; gap: 6px; }
+    .ladder .cell { background: var(--st-soft); padding: 8px 4px; min-height: 50px; }
+    .ladder .head { color: var(--st); font-size: 22px; }
+    .ladder .band { border-radius: 10px; color: #fff; background: var(--st); font: 800 13px var(--display); padding: 6px 8px; display: flex; align-items: center; justify-content: center; }
+    .ladder .foot { font-size: 12px; line-height: 1.25; }
+    .dots { font-size: 13px; letter-spacing: 0; }
+    .bar { height: 10px; }
+    .stage-head { margin: 56px 0 0; padding: 22px 24px; border-radius: var(--radius); background: var(--st); color: #fff; }
+    .stage-head small { font: 800 13px var(--display); letter-spacing: .12em; text-transform: uppercase; opacity: .85; }
+    .stage-head h2 { color: #fff; margin: 4px 0 6px; }
+    .stage-head p { margin: 0; opacity: .92; max-width: 46em; }
+    .level .badge { background: var(--st); }
+</style>
 </head>
 <body>
 
@@ -132,8 +161,8 @@
   <div class="wrap">
     <div>
       <a class="brand" href="index.html"><img src="assets/icon.svg" alt=""> Learn2Write</a>
-      <h1>The 9 levels</h1>
-      <p>What changes at each step, from tracing one big number to free writing at school-paper size. Each level changes one or two things at a time.</p>
+      <h1>The 22 levels</h1>
+      <p>Four stages, 22 small steps: from tracing one big number to writing a number he only hears. Every tracing level changes just one thing.</p>
       <div class="links">
         <a href="index.html">Full presentation</a>
         <a href="download/Learn2Write-levels.pptx">PowerPoint</a>
@@ -142,7 +171,7 @@
     </div>
     <div class="hero-shots" aria-hidden="true">
       <div class="dev"><img src="assets/levels/level1.jpg" alt=""></div>
-      <div class="dev"><img src="assets/levels/level9.jpg" alt=""></div>
+      <div class="dev"><img src="assets/levels/level22.jpg" alt=""></div>
     </div>
   </div>
 </header>
@@ -150,11 +179,7 @@
 <nav class="nav" aria-label="Levels">
   <div class="wrap">
     <span>Jump to</span>
-    <a class="chip" href="#overview">All</a>
-    <a class="chip" href="#level-1">1</a><a class="chip" href="#level-2">2</a><a class="chip" href="#level-3">3</a>
-    <a class="chip" href="#level-4">4</a><a class="chip" href="#level-5">5</a><a class="chip" href="#level-6">6</a>
-    <a class="chip" href="#level-7">7</a><a class="chip free" href="#level-8">8</a><a class="chip free" href="#level-9">9</a>
-    <a class="chip" href="#rules">Rules</a>
+    <a class="chip" href="#overview">All</a><a class="chip s1" href="#level-1">1</a><a class="chip s1" href="#level-2">2</a><a class="chip s1" href="#level-3">3</a><a class="chip s1" href="#level-4">4</a><a class="chip s1" href="#level-5">5</a><a class="chip s1" href="#level-6">6</a><a class="chip s1" href="#level-7">7</a><a class="chip s1" href="#level-8">8</a><a class="chip s1" href="#level-9">9</a><a class="chip s1" href="#level-10">10</a><a class="chip s1" href="#level-11">11</a><a class="chip s1" href="#level-12">12</a><a class="chip s1" href="#level-13">13</a><a class="chip s1" href="#level-14">14</a><a class="chip s2" href="#level-15">15</a><a class="chip s2" href="#level-16">16</a><a class="chip s2" href="#level-17">17</a><a class="chip s3" href="#level-18">18</a><a class="chip s3" href="#level-19">19</a><a class="chip s3" href="#level-20">20</a><a class="chip s4" href="#level-21">21</a><a class="chip s4" href="#level-22">22</a><a class="chip" href="#rules">Rules</a>
   </div>
 </nav>
 
@@ -162,17 +187,16 @@
 
   <section class="block" id="overview">
     <p class="kicker">Overview</p>
-    <h2>Four things change, one small step at a time</h2>
+    <h2>Four stages, 22 small steps</h2>
+    <div class="stages"><a class="stage-card s1" href="#stage-1"><img src="assets/levels/level1.jpg" alt="Stage 1: Tracing on a road" loading="lazy" width="1600" height="1000"><div><span class="lv">Stage 1 · Levels 1–14</span><h3>Tracing on a road</h3><p>He traces a thick grey road. Each level changes just one thing: size, room to wander, numbers per screen or the guide.</p></div></a><a class="stage-card s2" href="#stage-2"><img src="assets/levels/level15.jpg" alt="Stage 2: Dotted outline" loading="lazy" width="1600" height="1000"><div><span class="lv">Stage 2 · Levels 15–17</span><h3>Dotted outline</h3><p>A thin dotted number, just like the printed practice sheet. It starts a little easier again.</p></div></a><a class="stage-card s3" href="#stage-3"><img src="assets/levels/level18.jpg" alt="Stage 3: Copy the model" loading="lazy" width="1600" height="1000"><div><span class="lv">Stage 3 · Levels 18–20</span><h3>Copy the model</h3><p>No path at all. He copies a model shown on the left, ending at school-paper size.</p></div></a><a class="stage-card s4" href="#stage-4"><img src="assets/levels/level21.jpg" alt="Stage 4: Hear it, write it" loading="lazy" width="1600" height="1000"><div><span class="lv">Stage 4 · Levels 21–22</span><h3>Hear it, write it</h3><p>No model either. The voice says the number and he writes it from memory.</p></div></a></div>
     <div class="ladder-scroll" id="ladder"></div>
     <div class="legend">
-      <span><i></i>Levels 1–7: tracing on a path</span>
-      <span><i class="free"></i>Levels 8–9: free writing, no path</span>
+      <span>Scroll sideways to see all 22 levels</span>
       <span>Bars show relative size and room to wander</span>
     </div>
   </section>
 
   <div id="levels"></div>
-
   <section class="block" id="rules">
     <p class="kicker">Rules</p>
     <h2>How he moves between levels</h2>
@@ -191,6 +215,8 @@
           <li><i>3</i>One picture with its spelling after each turn</li>
           <li><i>4</i>A star per turn and a calm “All done” ending</li>
           <li><i>5</i>Lifting mid-stroke starts the number again (a Grown-ups setting)</li>
+          <li><i>6</i>Each new stage starts a little easier again</li>
+          <li><i>6</i>Each new stage starts a little easier again</li>
         </ul>
       </div>
     </div>
@@ -204,72 +230,60 @@
 
 <script>
 (function () {
-  var LEVELS = [
-    { n: 1, title: 'One very big number', per: 1, size: 'Very big', room: 'Lots (18% of its height)', guide: 'Arrows, numbered start dot, finish ring', changed: {},
-      why: 'Big, forgiving and fully guided, so he succeeds from the very first try.' },
-    { n: 2, title: 'A little smaller, a little tighter', per: 1, size: 'Big', room: 'Plenty (14%)', guide: 'Arrows, numbered start dot, finish ring',
-      changed: { size: 'Very big', room: 'Lots (18%)' }, why: 'Same routine as Level 1. He just needs a bit more control.' },
-    { n: 3, title: 'Two numbers per screen', per: 2, size: 'Big', room: 'Good (12%)', guide: 'Arrows, numbered start dot, finish ring',
-      changed: { per: '1', room: 'Plenty (14%)' }, why: 'He writes two numbers before his picture, building stamina.' },
-    { n: 4, title: 'The arrows go away', per: 2, size: 'Medium', room: 'Some (10%)', guide: 'Dots only: start dot and finish ring',
-      changed: { size: 'Big', room: 'Good (12%)', guide: 'Arrows + dots' }, why: 'He now has to remember the direction of each stroke himself.' },
-    { n: 5, title: 'Three numbers per screen', per: 3, size: 'Medium, a bit smaller', room: 'Less (8.5%)', guide: 'Dots only: start dot and finish ring',
-      changed: { per: '2', size: 'Medium', room: 'Some (10%)' }, why: 'More writing per turn, with a little less room to wander.' },
-    { n: 6, title: 'The path fades', per: 3, size: 'Smaller', room: 'Little (7%)', guide: 'Faint path and a small start dot',
-      changed: { size: 'Medium', room: 'Less (8.5%)', guide: 'Dots + finish ring' }, why: 'The path is barely visible, so his own control does most of the work.' },
-    { n: 7, title: 'Four small numbers', per: 4, size: 'Small', room: 'Tight (6%)', guide: 'Faint path and a small start dot',
-      changed: { per: '3', size: 'Smaller', room: 'Little (7%)' }, why: 'The last tracing level: small, tight and four in a row.' },
-    { n: 8, title: 'Free writing: copy the model', per: 1, size: 'Big', room: 'No path', guide: 'Model to copy, plus a start dot', free: true,
-      changed: { per: '4', size: 'Small', room: 'Tight (6%)', guide: 'Faint path' },
-      why: 'No path at all for the first time, so it starts big again.',
-      note: 'When he pauses, the app checks his shape. If it isn’t recognised, the path appears and they trace it together, so the turn still ends in success.' },
-    { n: 9, title: 'School-paper size', per: 3, size: 'School paper (about 2 cm)', room: 'No path', guide: 'Model only', free: true,
-      changed: { per: '1', size: 'Big', guide: 'Model + start dot' },
-      why: 'The closest step to pencil and paper: small, several in a row, no help on the page.' }
-  ];
+  var D = {"LEVELS":[{"n":1,"stage":1,"per":1,"size":"Very big","room":"Lots (18% of its height)","guide":"Arrows, numbered start dot, finish ring","title":"One very big number","why":"Big, forgiving and fully guided, so he succeeds from the very first try.","changed":{}},{"n":2,"stage":1,"per":1,"size":"Very big","room":"Plenty (15%)","guide":"Arrows, numbered start dot, finish ring","title":"A little less room","why":"Exactly the same screen; he just needs a bit more control.","changed":{"room":"Lots (18% of its height)"}},{"n":3,"stage":1,"per":1,"size":"Big","room":"Plenty (15%)","guide":"Arrows, numbered start dot, finish ring","title":"A little smaller","why":"Slightly smaller numbers, a step closer to handwriting size.","changed":{"size":"Very big"}},{"n":4,"stage":1,"per":2,"size":"Big","room":"Plenty (15%)","guide":"Arrows, numbered start dot, finish ring","title":"Two numbers per screen","why":"Two numbers before each picture builds stamina.","changed":{"per":1}},{"n":5,"stage":1,"per":2,"size":"Big","room":"Good (12%)","guide":"Arrows, numbered start dot, finish ring","title":"Less room again","why":"The same two numbers, with a little less room to wander.","changed":{"room":"Plenty (15%)"}},{"n":6,"stage":1,"per":2,"size":"Big","room":"Good (12%)","guide":"Dots only: start dot and finish ring","title":"The arrows go away","why":"He now remembers the direction of each stroke himself.","changed":{"guide":"Arrows, numbered start dot, finish ring"}},{"n":7,"stage":1,"per":2,"size":"Medium","room":"Good (12%)","guide":"Dots only: start dot and finish ring","title":"Smaller numbers","why":"Medium-sized numbers, with everything else the same.","changed":{"size":"Big"}},{"n":8,"stage":1,"per":3,"size":"Medium","room":"Good (12%)","guide":"Dots only: start dot and finish ring","title":"Three numbers per screen","why":"Three numbers per turn: more writing, same help.","changed":{"per":2}},{"n":9,"stage":1,"per":3,"size":"Medium","room":"Some (10%)","guide":"Dots only: start dot and finish ring","title":"Less room","why":"A little tighter, so his strokes get steadier.","changed":{"room":"Good (12%)"}},{"n":10,"stage":1,"per":3,"size":"Medium","room":"Some (10%)","guide":"Faint path and a small start dot","title":"The path fades","why":"The road is now faint, so his own control does more of the work.","changed":{"guide":"Dots only: start dot and finish ring"}},{"n":11,"stage":1,"per":3,"size":"Smaller","room":"Some (10%)","guide":"Faint path and a small start dot","title":"Smaller again","why":"Smaller numbers on a faint path.","changed":{"size":"Medium"}},{"n":12,"stage":1,"per":3,"size":"Smaller","room":"Less (8%)","guide":"Faint path and a small start dot","title":"Less room","why":"Less room to wander off the faint path.","changed":{"room":"Some (10%)"}},{"n":13,"stage":1,"per":4,"size":"Smaller","room":"Less (8%)","guide":"Faint path and a small start dot","title":"Four numbers per screen","why":"Four numbers in a row, like a short line of writing.","changed":{"per":3}},{"n":14,"stage":1,"per":4,"size":"Smaller","room":"Tight (6.5%)","guide":"Faint path and a small start dot","title":"Tight: the last road level","why":"The tightest tracing: small, faint and four in a row.","changed":{"room":"Less (8%)"}},{"n":15,"stage":2,"per":2,"size":"Medium","room":"Some (10%)","guide":"Dotted outline and a start dot","title":"A dotted outline, like the paper sheet","why":"A new kind of guide, so it starts easier again: two medium numbers with some room.","changed":{"per":4,"size":"Smaller","room":"Tight (6.5%)","guide":"Faint path and a small start dot"}},{"n":16,"stage":2,"per":3,"size":"Medium","room":"Some (10%)","guide":"Dotted outline and a start dot","title":"Three dotted numbers","why":"Three dotted numbers per turn.","changed":{"per":2}},{"n":17,"stage":2,"per":3,"size":"Smaller","room":"Less (8%)","guide":"Dotted outline and a start dot","title":"Smaller dotted numbers","why":"Smaller and tighter, just like tracing on the printed sheet.","changed":{"size":"Medium","room":"Some (10%)"}},{"n":18,"stage":3,"per":1,"size":"Big","room":"No path","guide":"Model to copy, plus a start dot","title":"Free writing: copy the model","why":"No path for the first time, so it starts big again. If his number isn’t recognised, the path appears and they trace it together.","changed":{"per":3,"size":"Smaller","room":"Less (8%)","guide":"Dotted outline and a start dot"}},{"n":19,"stage":3,"per":2,"size":"Big","room":"No path","guide":"Model to copy, plus a start dot","title":"Copy two numbers","why":"Two numbers copied from the model before each picture.","changed":{"per":1}},{"n":20,"stage":3,"per":3,"size":"School paper (about 2 cm)","room":"No path","guide":"Model to copy, plus a start dot","title":"Copy at school-paper size","why":"Three small numbers, the size he will write on school paper.","changed":{"per":2,"size":"Big"}},{"n":21,"stage":4,"per":1,"size":"Big","room":"No path","guide":"No model: the voice says the number","title":"Hear it, write it","why":"Writing from memory: the voice says the number and there is no model. “Hear it again” repeats it and “Show me” draws it.","changed":{"per":3,"size":"School paper (about 2 cm)","guide":"Model to copy, plus a start dot"}},{"n":22,"stage":4,"per":3,"size":"School paper (about 2 cm)","room":"No path","guide":"No model: the voice says the number","title":"Hear it, write it at school-paper size","why":"The final step, just like writing a dictated number on paper.","changed":{"per":1,"size":"Big"}}],"STAGES":[{"id":1,"name":"Tracing on a road","levels":"1–14","from":1,"to":14,"short":"Trace","text":"He traces a thick grey road. Each level changes just one thing: size, room to wander, numbers per screen or the guide."},{"id":2,"name":"Dotted outline","levels":"15–17","from":15,"to":17,"short":"Dotted","text":"A thin dotted number, just like the printed practice sheet. It starts a little easier again."},{"id":3,"name":"Copy the model","levels":"18–20","from":18,"to":20,"short":"Copy","text":"No path at all. He copies a model shown on the left, ending at school-paper size."},{"id":4,"name":"Hear it, write it","levels":"21–22","from":21,"to":22,"short":"Hear","text":"No model either. The voice says the number and he writes it from memory."}],"sizeF":{"Very big":0.96,"Big":0.84,"Medium":0.74,"Smaller":0.62,"School paper (about 2 cm)":0.32},"ROOM":[18,15,15,15,12,12,12,12,10,10,10,8,8,6.5,10,10,8,0,0,0,0,0],"SHORT":["Arrows + dots","Arrows + dots","Arrows + dots","Arrows + dots","Arrows + dots","Dots","Dots","Dots","Dots","Faint","Faint","Faint","Faint","Faint","Dotted","Dotted","Dotted","Model","Model","Model","Voice only","Voice only"]};
+  var LEVELS = D.LEVELS, STAGES = D.STAGES;
   var ROWS = [['per', 'Numbers per screen'], ['size', 'Size'], ['room', 'Room to wander off the path'], ['guide', 'Guide']];
-  var SIZE = [0.96, 0.84, 0.80, 0.70, 0.62, 0.54, 0.48, 0.80, 0.30];
-  var ROOM = [18, 14, 12, 10, 8.5, 7, 6, 0, 0];
-  var GUIDE = ['Arrows + dots', 'Arrows + dots', 'Arrows + dots', 'Dots', 'Dots', 'Faint', 'Faint', 'Model + dot', 'Model'];
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function per(v) { return v + (v == 1 ? ' number' : ' numbers'); }
 
-  // Overview ladder
+  // Overview ladder: stage band, level numbers, then the four rows
   var h = '<div class="ladder"><div></div>';
-  LEVELS.forEach(function (L) { h += '<a class="cell head' + (L.free ? ' free' : '') + '" href="#level-' + L.n + '">' + L.n + '</a>'; });
+  STAGES.forEach(function (s) { h += '<div class="band s' + s.id + '" style="grid-column: span ' + (s.to - s.from + 1) + '">' + esc(s.name) + '</div>'; });
+  h += '<div></div>';
+  LEVELS.forEach(function (L) { h += '<a class="cell head s' + L.stage + '" href="#level-' + L.n + '">' + L.n + '</a>'; });
   h += '<div class="lab">Numbers per screen</div>';
-  LEVELS.forEach(function (L) { h += '<div class="cell' + (L.free ? ' free' : '') + '"><span class="dots" aria-label="' + L.per + ' per screen">' + '●'.repeat(L.per) + '</span></div>'; });
+  LEVELS.forEach(function (L) { h += '<div class="cell s' + L.stage + '"><span class="dots" aria-label="' + L.per + ' per screen">' + '\u25CF'.repeat(L.per) + '</span></div>'; });
   h += '<div class="lab">Size</div>';
-  LEVELS.forEach(function (L, i) { h += '<div class="cell' + (L.free ? ' free' : '') + '"><div class="bar" style="width:' + Math.round(SIZE[i] * 80) + 'px" title="' + esc(L.size) + '"></div></div>'; });
+  LEVELS.forEach(function (L) { h += '<div class="cell s' + L.stage + '"><div class="bar" style="width:' + Math.round((D.sizeF[L.size] || 0.5) * 46) + 'px" title="' + esc(L.size) + '"></div></div>'; });
   h += '<div class="lab">Room to wander</div>';
-  LEVELS.forEach(function (L, i) { h += '<div class="cell' + (L.free ? ' free' : '') + '">' + (ROOM[i] ? '<div class="bar room" style="width:' + Math.round(ROOM[i] / 18 * 80) + 'px" title="' + esc(L.room) + '"></div>' : '<span class="nopath">no path</span>') + '</div>'; });
+  LEVELS.forEach(function (L, i) { h += '<div class="cell s' + L.stage + '">' + (D.ROOM[i] ? '<div class="bar room" style="width:' + Math.round(D.ROOM[i] / 18 * 46) + 'px" title="' + esc(L.room) + '"></div>' : '<span class="nopath">no path</span>') + '</div>'; });
   h += '<div class="lab">Guide</div>';
-  LEVELS.forEach(function (L, i) { h += '<div class="cell foot' + (L.free ? ' free' : '') + '">' + GUIDE[i] + '</div>'; });
+  LEVELS.forEach(function (L, i) { h += '<div class="cell foot s' + L.stage + '">' + D.SHORT[i] + '</div>'; });
   document.getElementById('ladder').innerHTML = h + '</div>';
 
-  // One section per level
+  // Stages and levels
   var out = '';
   LEVELS.forEach(function (L) {
+    var S = STAGES[L.stage - 1];
+    if (L.n === S.from) out += '<div class="stage-head s' + S.id + '" id="stage-' + S.id + '"><small>Stage ' + S.id + ' · Levels ' + S.levels + '</small><h2>' + esc(S.name) + '</h2><p>' + esc(S.text) + '</p></div>';
     var rows = ROWS.map(function (r) {
       var k = r[0], ch = Object.prototype.hasOwnProperty.call(L.changed, k);
-      var val = k === 'per' ? L.per + (L.per === 1 ? ' number' : ' numbers') : L[k];
+      var val = k === 'per' ? per(L.per) : L[k], was = ch ? (k === 'per' ? per(L.changed[k]) : L.changed[k]) : '';
       return '<li' + (ch ? ' class="ch"' : '') + '><span class="k">' + r[1] + '</span>' + (ch ? '<span class="tag">CHANGED</span>' : '<span></span>') +
-        '<span class="v">' + esc(val) + '</span>' + (ch ? '<span class="was">was: ' + esc(L.changed[k]) + '</span>' : '') + '</li>';
+        '<span class="v">' + esc(val) + '</span>' + (ch ? '<span class="was">was: ' + esc(was) + '</span>' : '') + '</li>';
     }).join('');
-    out += '<section class="level' + (L.free ? ' free' : '') + '" id="level-' + L.n + '">' +
-      '<div class="level-head"><div class="badge">' + L.n + '</div><div><small>Level ' + L.n + (L.free ? ' · free writing' : ' · tracing') + '</small><h3>' + esc(L.title) + '</h3></div></div>' +
+    var start = L.n === 1 ? 'Starting point' : (L.n === S.from ? 'New stage · changed from Level ' + (L.n - 1) : 'What changed from Level ' + (L.n - 1));
+    out += '<section class="level s' + L.stage + '" id="level-' + L.n + '">' +
+      '<div class="level-head"><div class="badge">' + L.n + '</div><div><small>Level ' + L.n + ' · ' + esc(S.name) + '</small><h3>' + esc(L.title) + '</h3></div></div>' +
       '<div class="level-body"><div class="dev"><img src="assets/levels/level' + L.n + '.jpg" alt="Learn2Write at Level ' + L.n + ': ' + esc(L.title) + '" loading="lazy" width="1600" height="1000"></div>' +
-      '<div class="changes"><h4' + (L.n === 1 ? ' class="start">Starting point' : '>What changed from Level ' + (L.n - 1)) + '</h4><ul class="rows">' + rows + '</ul>' +
-      '<p class="why"><b>Why:</b> ' + esc(L.why) + '</p>' + (L.note ? '<p class="note">' + esc(L.note) + '</p>' : '') + '</div></div></section>';
+      '<div class="changes"><h4' + (L.n === 1 ? ' class="start"' : '') + '>' + start + '</h4><ul class="rows">' + rows + '</ul>' +
+      '<p class="why"><b>Why:</b> ' + esc(L.why) + '</p></div></div></section>';
   });
   document.getElementById('levels').innerHTML = out;
 
   // Highlight the level in view
   var chips = Array.prototype.slice.call(document.querySelectorAll('.nav .chip'));
+  var bar = document.querySelector('.nav .wrap');
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (!en.isIntersecting) return;
-        chips.forEach(function (c) { c.classList.toggle('on', c.getAttribute('href') === '#' + en.target.id); });
+        var id = en.target.id.indexOf('stage-') === 0 ? 'level-' + STAGES[+en.target.id.slice(6) - 1].from : en.target.id;
+        chips.forEach(function (c) {
+          var on = c.getAttribute('href') === '#' + id;
+          c.classList.toggle('on', on);
+          if (on && bar.scrollWidth > bar.clientWidth) bar.scrollTo({ left: c.offsetLeft - bar.clientWidth / 2, behavior: 'auto' });
+        });
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
     document.querySelectorAll('#overview, .level, #rules').forEach(function (s) { io.observe(s); });

@@ -20,18 +20,41 @@
 
   // n = characters per screen, size = share of the writing area's height,
   // tol = how far (in 1/100ths of a character) the pen may wander from the path.
+  // 22 levels in 4 stages. Tracing levels change ONE thing at a time; each new
+  // stage starts a little easier again.
+  //   n = characters per screen, size = share of the writing area's height
+  //   (or mm = cap height in millimetres), tol = room to wander off the path in
+  //   1/100ths of a character, guide = what helps him.
   var LEVELS = [
-    { n: 1, size: 0.96, tol: 18,  guide: 'strong', note: '1 per screen · very big · lots of room' },
-    { n: 1, size: 0.84, tol: 14,  guide: 'strong', note: '1 per screen · big · plenty of room' },
-    { n: 2, size: 0.80, tol: 12,  guide: 'strong', note: '2 per screen · big · good room' },
-    { n: 2, size: 0.70, tol: 10,  guide: 'medium', note: '2 per screen · medium · some room' },
-    { n: 3, size: 0.62, tol: 8.5, guide: 'medium', note: '3 per screen · medium · less room' },
-    { n: 3, size: 0.54, tol: 7,   guide: 'light',  note: '3 per screen · smaller · little room' },
-    { n: 4, size: 0.48, tol: 6,   guide: 'light',  note: '4 per screen · small · tight' },
-    // Free writing: no path to follow. He copies a model, like on paper.
-    { n: 1, size: 0.80, tol: 12,  guide: 'free', model: true, startDot: true, note: 'Free writing · 1 per screen · big · copy the model' },
-    { n: 3, mm: 22,     tol: 10,  guide: 'free', model: true, startDot: false, note: 'Free writing · 3 per screen · school-paper size' }
+    // Stage 1 · tracing on a road
+    { n: 1, size: 0.96, tol: 18,  guide: 'strong', stage: 1, note: '1 per screen · very big · lots of room · arrows' },
+    { n: 1, size: 0.96, tol: 15,  guide: 'strong', stage: 1, note: '1 per screen · very big · plenty of room · arrows' },
+    { n: 1, size: 0.86, tol: 15,  guide: 'strong', stage: 1, note: '1 per screen · big · plenty of room · arrows' },
+    { n: 2, size: 0.86, tol: 15,  guide: 'strong', stage: 1, note: '2 per screen · big · plenty of room · arrows' },
+    { n: 2, size: 0.86, tol: 12,  guide: 'strong', stage: 1, note: '2 per screen · big · good room · arrows' },
+    { n: 2, size: 0.86, tol: 12,  guide: 'medium', stage: 1, note: '2 per screen · big · good room · dots only' },
+    { n: 2, size: 0.74, tol: 12,  guide: 'medium', stage: 1, note: '2 per screen · medium · good room · dots only' },
+    { n: 3, size: 0.74, tol: 12,  guide: 'medium', stage: 1, note: '3 per screen · medium · good room · dots only' },
+    { n: 3, size: 0.74, tol: 10,  guide: 'medium', stage: 1, note: '3 per screen · medium · some room · dots only' },
+    { n: 3, size: 0.74, tol: 10,  guide: 'light',  stage: 1, note: '3 per screen · medium · some room · faint path' },
+    { n: 3, size: 0.62, tol: 10,  guide: 'light',  stage: 1, note: '3 per screen · smaller · some room · faint path' },
+    { n: 3, size: 0.62, tol: 8,   guide: 'light',  stage: 1, note: '3 per screen · smaller · less room · faint path' },
+    { n: 4, size: 0.62, tol: 8,   guide: 'light',  stage: 1, note: '4 per screen · smaller · less room · faint path' },
+    { n: 4, size: 0.62, tol: 6.5, guide: 'light',  stage: 1, note: '4 per screen · smaller · tight · faint path' },
+    // Stage 2 · dotted outline, like the printed practice sheet
+    { n: 2, size: 0.74, tol: 10,  guide: 'dotted', stage: 2, startDot: true, note: 'Dotted outline · 2 per screen · medium · some room' },
+    { n: 3, size: 0.74, tol: 10,  guide: 'dotted', stage: 2, startDot: true, note: 'Dotted outline · 3 per screen · medium · some room' },
+    { n: 3, size: 0.62, tol: 8,   guide: 'dotted', stage: 2, startDot: true, note: 'Dotted outline · 3 per screen · smaller · less room' },
+    // Stage 3 · free writing: copy the model
+    { n: 1, size: 0.80, tol: 12,  guide: 'free', stage: 3, model: true, startDot: true, note: 'Copy the model · 1 per screen · big' },
+    { n: 2, size: 0.80, tol: 12,  guide: 'free', stage: 3, model: true, startDot: true, note: 'Copy the model · 2 per screen · big' },
+    { n: 3, mm: 22,     tol: 10,  guide: 'free', stage: 3, model: true, startDot: true, note: 'Copy the model · 3 per screen · school-paper size' },
+    // Stage 4 · hear it, write it: no model at all
+    { n: 1, size: 0.80, tol: 12,  guide: 'memory', stage: 4, note: 'Hear it, write it · 1 per screen · big' },
+    { n: 3, mm: 22,     tol: 10,  guide: 'memory', stage: 4, note: 'Hear it, write it · 3 per screen · school-paper size' }
   ];
+  // Levels before v0.5 (9 levels) mapped onto the new scale.
+  var OLD_LEVEL_MAP = { 1: 1, 2: 3, 3: 4, 4: 7, 5: 9, 6: 11, 7: 14, 8: 18, 9: 20 };
   var MMPX = 160 / 25.4; // Android CSS px per millimetre (1 dp = 1/160 inch)
   var LEVEL_UP = { turns: 5, avg: 0.75 };   // last 5 turns averaging 4 stars or more
   var LEVEL_DOWN = { turns: 3, avg: 0.35 }; // last 3 turns averaging under 2 stars
@@ -70,6 +93,13 @@
   }
   var data = load();
   var S = data.settings;
+  if (!data.levelsV) {
+    data.level = OLD_LEVEL_MAP[data.level] || 1;
+    data.nextLevel = OLD_LEVEL_MAP[data.nextLevel] || data.level;
+    S.fixedLevel = String(OLD_LEVEL_MAP[S.fixedLevel] || 1);
+    data.levelsV = 2;
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {}
+  }
   function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {} }
 
   // ---------------------------------------------------------------- native bridge
@@ -494,7 +524,7 @@
       key: key,
       strokes: SHAPES[key].strokes.map(function (s) { return resample(s, 1); }),
       si: 0, prog: 0, done: false,
-      free: L.guide === 'free', ink: [], assist: false, evalTimer: null,
+      free: L.guide === 'free' || L.guide === 'memory', ink: [], assist: false, evalTimer: null,
       m: { devSum: 0, devN: 0, lapses: 0, helps: 0, t0: 0, presSum: 0, presN: 0 }
     };
   }
@@ -508,7 +538,9 @@
       lastProgressAt: performance.now(), demo: null, finger: null, hover: null, nudgeAt: 0
     };
     T.chars[0].m.t0 = performance.now();
-    $('trace-label').textContent = keys.length === 1 ? (L.guide === 'free' ? 'Write ' : /[0-9]/.test(keys[0]) ? 'Number ' : 'Letter ') + keys[0] : (L.guide === 'free' ? 'Write ' + keys.join(' ') : '');
+    $('trace-label').textContent = L.guide === 'memory' ? 'Listen and write' :
+      keys.length === 1 ? (L.guide === 'free' ? 'Write ' : /[0-9]/.test(keys[0]) ? 'Number ' : 'Letter ') + keys[0] : (L.guide === 'free' ? 'Write ' + keys.join(' ') : '');
+    $('btn-hear').hidden = L.guide !== 'memory';
     T.labelText = $('trace-label').textContent;
     renderStars($('stars-trace'));
     show('trace');
@@ -518,6 +550,11 @@
   function beginChar(delay) {
     var c = cur(), key = c.key, ci = T.ci;
     sayName(key);
+    if (T.L.guide === 'memory') {
+      // No model: he hears the number. Without voice, show a quantity cue (●●●) for numbers.
+      if (S.voice === 'off' || !hasTTS) $('trace-label').textContent = /[0-9]/.test(key) ? 'Write \u25CF'.replace('\u25CF', new Array(+key + 1).join('\u25CF')) : 'Write ' + key;
+      return;
+    }
     if (S.demo === 'on') setTimeout(function () {
       if (T && T.ci === ci && cur().key === key && !T.tracking && c.prog === 0 && c.si === 0) playDemo(false);
     }, delay || 450);
@@ -562,7 +599,7 @@
     if (isHelp) c.m.helps++;
     if (c.free && !c.assist) {
       var tot = c.strokes.reduce(function (a, s) { return a + s.len; }, 0);
-      T.demo = { model: true, ci: T.ci, t0: performance.now(), dur: Math.max(900, tot * 12) };
+      T.demo = { model: !!T.L.model, cell: !T.L.model, ci: T.ci, t0: performance.now(), dur: Math.max(900, tot * 12) };
       return;
     }
     T.demo = { ci: T.ci, si: c.si, from: c.prog, t0: performance.now(), dur: Math.max(700, (st.len - c.prog) * 14) };
@@ -893,6 +930,18 @@
     }
     drawInk(ch, 1, ch.done);
     ctx.shadowBlur = 0;
+    if (isCur && T.demo && T.demo.cell) {
+      var tot = ch.strokes.reduce(function (a, s) { return a + s.len; }, 0);
+      var f = Math.min(1, (now - T.demo.t0) / T.demo.dur), left = f * tot, gp = null;
+      ctx.strokeStyle = C.ghost; ctx.lineWidth = 7; ctx.globalAlpha = 0.45;
+      for (var i = 0; i < ch.strokes.length && left > 0; i++) {
+        var st = ch.strokes[i], upto = Math.min(st.len, left);
+        polyline(st, 0, upto); ctx.stroke(); gp = pointAt(st, upto); left -= st.len;
+      }
+      ctx.globalAlpha = 1;
+      if (gp) { ctx.fillStyle = C.ghost; ctx.beginPath(); ctx.arc(gp[0], gp[1], 5, 0, Math.PI * 2); ctx.fill(); }
+      if (f >= 1 && now - T.demo.t0 > T.demo.dur + 600) T.demo = null;
+    }
     if (isCur && T.hover && !T.tracking) {
       ctx.strokeStyle = 'rgba(66, 99, 235, .45)'; ctx.lineWidth = 1.2;
       ctx.beginPath(); ctx.arc(T.hover[0], T.hover[1], 3.5, 0, Math.PI * 2); ctx.stroke();
@@ -958,9 +1007,11 @@
       // Track (the road to follow). Upcoming characters wait quietly in the background.
       ctx.globalAlpha = g === 'light' ? 0.45 : 1;
       if (!isCur && !ch.done) ctx.globalAlpha *= 0.55;
-      ctx.strokeStyle = C.track;
-      ctx.lineWidth = 17;
+      if (g === 'dotted') { // a thin dotted outline, like the printed practice sheet
+        ctx.strokeStyle = '#8E95A1'; ctx.lineWidth = 2.6; ctx.setLineDash([0.1, 5.5]);
+      } else { ctx.strokeStyle = C.track; ctx.lineWidth = 17; }
       ch.strokes.forEach(function (st) { polyline(st, 0, st.len); ctx.stroke(); });
+      ctx.setLineDash([]);
       ctx.globalAlpha = 1;
 
       // A restarted attempt fades away
@@ -968,15 +1019,15 @@
         var ff = (now - T.fade.t0) / 500;
         if (ff >= 1 || calm) T.fade = null;
         else {
-          ctx.globalAlpha = 1 - ff; ctx.strokeStyle = C.ink; ctx.lineWidth = 11;
+          ctx.globalAlpha = 1 - ff; ctx.strokeStyle = C.ink; ctx.lineWidth = g === 'dotted' ? 6 : 11;
           T.fade.segs.forEach(function (sg) { polyline(ch.strokes[sg[0]], 0, sg[1]); ctx.stroke(); });
           ctx.globalAlpha = 1;
         }
       }
 
-      // Ink
+      // Ink (thinner over a dotted outline, like a pen)
       ctx.strokeStyle = C.ink;
-      ctx.lineWidth = 11;
+      ctx.lineWidth = g === 'dotted' ? 6 : 11;
       if (T.done && !calm) {
         var gl = Math.min(1, (now - T.glowAt) / 500);
         ctx.shadowColor = 'rgba(66, 99, 235, .45)';
@@ -1005,7 +1056,7 @@
         }
       }
       // Finish ring
-      if (g !== 'light') {
+      if (g === 'strong' || g === 'medium') {
         var end = curSt.pts[curSt.pts.length - 1];
         ctx.strokeStyle = C.arrow; ctx.lineWidth = 1.4;
         ctx.setLineDash([2, 2]);
@@ -1013,7 +1064,7 @@
         ctx.setLineDash([]);
       }
       // Demo: a ghost dot shows the way
-      if (T.demo && !T.demo.model && T.demo.ci === ci) {
+      if (T.demo && !T.demo.model && !T.demo.cell && T.demo.ci === ci) {
         var f = Math.min(1, (now - T.demo.t0) / T.demo.dur);
         var ds = ch.strokes[T.demo.si];
         var upto = T.demo.from + (ds.len - T.demo.from) * f;
@@ -1029,7 +1080,7 @@
       var head = pointAt(curSt, ch.prog);
       var pulse = calm ? 0 : Math.sin(now / 260) * 1.1;
       var nudge = now - T.nudgeAt < 700 ? 3 * Math.sin(((now - T.nudgeAt) / 700) * Math.PI) : 0;
-      var r = (g === 'light' ? 6 : 7.5) + pulse + nudge;
+      var r = (g === 'light' ? 6 : g === 'dotted' ? 5.5 : 7.5) + pulse + nudge;
       ctx.fillStyle = ch.prog === 0 ? C.start : C.ink;
       ctx.beginPath(); ctx.arc(head[0], head[1], r, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#fff';
@@ -1157,7 +1208,8 @@
     LEVELS.forEach(function (x, i) {
       var li = document.createElement('li');
       li.className = (i + 1 === lv ? 'now' : i + 1 < lv ? 'past' : '');
-      li.innerHTML = '<b>' + (i + 1) + '</b><span>' + (x.guide === 'free' ? 'free ' : '') + x.n + '×</span>';
+      li.className += ' st' + x.stage;
+      li.innerHTML = '<b>' + (i + 1) + '</b><span>' + ({ 2: 'dots', 3: 'copy', 4: 'hear' }[x.stage] || x.n + '×') + '</span>';
       li.title = x.note;
       ladder.appendChild(li);
     });
@@ -1349,6 +1401,7 @@
   // ---------------------------------------------------------------- wiring
   $('btn-start').addEventListener('click', startSession);
   $('btn-show').addEventListener('click', function () { audio(); playDemo(true); });
+  $('btn-hear').addEventListener('click', function () { if (T && !T.done) sayName(cur().key); });
   holdButton($('btn-parent'), 2000, function () { show('parent'); });
   holdButton($('btn-exit'), 1200, function () { show('home'); });
 

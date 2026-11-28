@@ -167,7 +167,7 @@ img { -webkit-user-drag: none; user-select: none; }
   touch-action: none;
   display: block;
 }
-.trace-foot { display: flex; justify-content: center; padding-top: 10px; }
+.trace-foot { display: flex; justify-content: center; gap: 14px; padding-top: 10px; }
 
 /* ---------- Reward ---------- */
 .reward { background: linear-gradient(#FFF9EC, var(--bg)); }
@@ -275,7 +275,9 @@ select, input[type="text"] {
 .level-head { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; margin-bottom: 10px; }
 .level-head b { font-size: 24px; font-weight: 900; }
 .level-head span { color: var(--muted); font-size: 16px; }
-.ladder { list-style: none; margin: 0 0 10px; padding: 0; display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
+.ladder { list-style: none; margin: 0 0 10px; padding: 0; display: grid; grid-template-columns: repeat(11, 1fr); gap: 6px; }
+.ladder li.st2 { border-color: #C9D3FB; }
+.ladder li.st3, .ladder li.st4 { border-color: #B9DCD2; }
 .ladder li { border-radius: 12px; padding: 6px 0; text-align: center; background: var(--bg); border: 2px solid var(--line); display: grid; }
 .ladder li b { font-size: 18px; font-weight: 900; }
 .ladder li span { font-size: 12px; color: var(--muted); }
