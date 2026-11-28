@@ -262,3 +262,4 @@ table.compare.levels-t td, table.compare.levels-t th { padding-top: 7px; padding
 table.compare.levels-t td { font-size: 15px; border-top-width: 4px; }
 table.compare.levels-t td:first-child { width: auto; font: 900 16px var(--display); }
 .stars-inline { color: var(--star); letter-spacing: 1px; }
+.nw { white-space: nowrap; }
